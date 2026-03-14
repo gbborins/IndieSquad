@@ -4,17 +4,25 @@ namespace App\Controllers;
 
 use App\Services\SupabaseService;
 use App\Services\OpenRouterService;
+use App\Services\AgentManager;
+use App\Agents\OrchestratorAgent;
+use App\Agents\BlogWriterAgent;
 use App\Utils\JsonResponse;
 
 class TaskController
 {
     private SupabaseService $supabase;
-    private OpenRouterService $openRouter;
+    private AgentManager $squad;
 
     public function __construct()
     {
         $this->supabase = new SupabaseService();
-        $this->openRouter = new OpenRouterService();
+        $openRouter = new OpenRouterService();
+        
+        // Inicializa o Service Container do Esquadrão
+        $this->squad = new AgentManager();
+        $this->squad->register(new OrchestratorAgent($openRouter));
+        $this->squad->register(new BlogWriterAgent($openRouter));
     }
 
     public function createTask(): void
@@ -28,6 +36,7 @@ class TaskController
             JsonResponse::send(['error' => 'title e description são obrigatórios'], 422);
         }
 
+        // 1. Persiste a intenção inicial
         $task = $this->supabase->createTask([
             'title' => $input['title'],
             'description' => $input['description'],
@@ -35,8 +44,10 @@ class TaskController
             'status' => 'draft'
         ]);
 
-        $plan = $this->openRouter->generatePlan($task);
+        // 2. Chama o Agente Orquestrador para Planejar
+        $plan = $this->squad->run('orchestrator', $task);
 
+        // 3. Trava na Aprovação e guarda o plano
         $updatedTask = $this->supabase->updateTask($task['id'], [
             'status' => 'pending_approval',
             'agent_plan' => $plan
@@ -58,26 +69,33 @@ class TaskController
         }
 
         $approvedTask = $this->supabase->updateTask($id, [
-            'status' => 'approved'
+            'status' => 'running' // Status passa a ser Running temporariamente no frontend
         ]);
 
-        $execution = $this->openRouter->executeApprovedTask($approvedTask);
+        // 3. Delega para os Agentes de Execução Especialistas (ex: Blog Writer)
+        $execution = $this->squad->run('blog_writer', $approvedTask);
 
         $finalStatus = $execution['status'] ?? 'completed';
 
-        $runningTask = $this->supabase->updateTask($id, [
+        // 4. Salva a execução final das roles
+        $completedTask = $this->supabase->updateTask($id, [
             'status' => $finalStatus,
             'execution_id' => $execution['execution_id'] ?? null,
             'agent_response' => $execution
         ]);
 
-        JsonResponse::send(['task' => $runningTask], 200);
+        JsonResponse::send(['task' => $completedTask], 200);
     }
 
     public function listTasks(): void
     {
         $tasks = $this->supabase->listTasks();
-        JsonResponse::send(['tasks' => $tasks]);
+        $roster = $this->squad->getSquadRoster(); // Extra métrica opcional do Backend
+        
+        JsonResponse::send([
+            'tasks' => $tasks,
+            'active_agents' => $roster
+        ]);
     }
 
     public function getTask(string $id): void
