@@ -65,14 +65,19 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <h1>Site de vendas de serviço de IA</h1>
-      <p>Solicite uma tarefa ao agente, revise o plano e aprove a execução.</p>
+    <div className="mission-control">
+      <h1>[ Mission Control ]</h1>
+      <h2>Orquestrador de IA</h2>
+      <p style={{marginBottom: 24}}>Solicite uma tarefa ao agente, revise o plano e aprove a execução.</p>
 
-      <TaskForm onCreate={handleCreate} />
+      <div className="task-form-container">
+        <TaskForm onCreate={handleCreate} />
+      </div>
 
       {selectedTask && (
-        <TaskApprovalCard task={selectedTask} onApprove={handleApprove} />
+        <div className="approval-card">
+          <TaskApprovalCard task={selectedTask} onApprove={handleApprove} />
+        </div>
       )}
 
       <TaskStatusList tasks={tasks} />
