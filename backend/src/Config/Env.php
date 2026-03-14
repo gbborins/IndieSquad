@@ -8,14 +8,15 @@ class Env
 {
     public static function load(string $basePath): void
     {
-        if (file_exists($basePath . '/.env')) {
-            $dotenv = Dotenv::createImmutable($basePath);
-            $dotenv->load();
-        }
+        $dotenv = Dotenv::createUnsafeImmutable($basePath);
+        $dotenv->safeLoad();
     }
 
     public static function get(string $key, ?string $default = null): ?string
     {
-        return $_ENV[$key] ?? $_SERVER[$key] ?? $default;
+        return $_ENV[$key]
+            ?? $_SERVER[$key]
+            ?? getenv($key)
+            ?? $default;
     }
 }

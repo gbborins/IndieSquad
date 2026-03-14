@@ -3,18 +3,18 @@
 namespace App\Controllers;
 
 use App\Services\SupabaseService;
-use App\Services\OpenClawService;
+use App\Services\OpenRouterService;
 use App\Utils\JsonResponse;
 
 class TaskController
 {
     private SupabaseService $supabase;
-    private OpenClawService $openClaw;
+    private OpenRouterService $openRouter;
 
     public function __construct()
     {
         $this->supabase = new SupabaseService();
-        $this->openClaw = new OpenClawService();
+        $this->openRouter = new OpenRouterService();
     }
 
     public function createTask(): void
@@ -35,7 +35,7 @@ class TaskController
             'status' => 'draft'
         ]);
 
-        $plan = $this->openClaw->generatePlan($task);
+        $plan = $this->openRouter->generatePlan($task);
 
         $updatedTask = $this->supabase->updateTask($task['id'], [
             'status' => 'pending_approval',
@@ -61,10 +61,12 @@ class TaskController
             'status' => 'approved'
         ]);
 
-        $execution = $this->openClaw->executeApprovedTask($approvedTask);
+        $execution = $this->openRouter->executeApprovedTask($approvedTask);
+
+        $finalStatus = $execution['status'] ?? 'completed';
 
         $runningTask = $this->supabase->updateTask($id, [
-            'status' => 'running',
+            'status' => $finalStatus,
             'execution_id' => $execution['execution_id'] ?? null,
             'agent_response' => $execution
         ]);
