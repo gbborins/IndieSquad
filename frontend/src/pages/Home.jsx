@@ -3,9 +3,11 @@ import { createTask, approveTask, listTasks } from "../api/tasks";
 import TaskForm from "../components/TaskForm";
 import TaskApprovalCard from "../components/TaskApprovalCard";
 import TaskStatusList from "../components/TaskStatusList";
+import AgentRoster from "../components/AgentRoster";
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
+  const [activeAgents, setActiveAgents] = useState([]);
 
   const selectedTask =
     tasks.find((t) => t.status === "pending_approval") || null;
@@ -14,6 +16,7 @@ export default function Home() {
     try {
       const data = await listTasks();
       setTasks(data.tasks || []);
+      if (data.active_agents) setActiveAgents(data.active_agents);
     } catch (error) {
       console.error("Erro ao carregar tarefas:", error);
     }
@@ -46,6 +49,7 @@ export default function Home() {
 
         if (!cancelled) {
           setTasks(data.tasks || []);
+          if (data.active_agents) setActiveAgents(data.active_agents);
         }
       } catch (error) {
         console.error("Erro ao carregar tarefas:", error);
@@ -69,6 +73,8 @@ export default function Home() {
       <h1>[ Mission Control ]</h1>
       <h2>Orquestrador de IA</h2>
       <p style={{marginBottom: 24}}>Solicite uma tarefa ao agente, revise o plano e aprove a execução.</p>
+
+      <AgentRoster tasks={tasks} activeAgents={activeAgents} />
 
       <div className="task-form-container">
         <TaskForm onCreate={handleCreate} />
