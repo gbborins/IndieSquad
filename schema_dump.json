@@ -1,0 +1,134 @@
+{
+    "profiles": {
+        "id": {
+            "description": "Note:\nThis is a Primary Key.<pk\/>",
+            "format": "uuid",
+            "type": "string"
+        },
+        "email": {
+            "format": "text",
+            "type": "string"
+        },
+        "full_name": {
+            "format": "text",
+            "type": "string"
+        },
+        "created_at": {
+            "default": "now()",
+            "format": "timestamp with time zone",
+            "type": "string"
+        }
+    },
+    "workspaces": {
+        "id": {
+            "default": "gen_random_uuid()",
+            "description": "Note:\nThis is a Primary Key.<pk\/>",
+            "format": "uuid",
+            "type": "string"
+        },
+        "name": {
+            "format": "text",
+            "type": "string"
+        },
+        "slug": {
+            "format": "text",
+            "type": "string"
+        },
+        "created_at": {
+            "default": "now()",
+            "format": "timestamp with time zone",
+            "type": "string"
+        }
+    },
+    "workspace_members": {
+        "id": {
+            "default": "gen_random_uuid()",
+            "description": "Note:\nThis is a Primary Key.<pk\/>",
+            "format": "uuid",
+            "type": "string"
+        },
+        "workspace_id": {
+            "description": "Note:\nThis is a Foreign Key to `workspaces.id`.<fk table='workspaces' column='id'\/>",
+            "format": "uuid",
+            "type": "string"
+        },
+        "user_id": {
+            "format": "uuid",
+            "type": "string"
+        },
+        "role": {
+            "default": "member",
+            "format": "text",
+            "type": "string"
+        },
+        "created_at": {
+            "default": "now()",
+            "format": "timestamp with time zone",
+            "type": "string"
+        }
+    },
+    "tasks": {
+        "id": {
+            "default": "gen_random_uuid()",
+            "description": "Note:\nThis is a Primary Key.<pk\/>",
+            "format": "uuid",
+            "type": "string"
+        },
+        "workspace_id": {
+            "description": "Note:\nThis is a Foreign Key to `workspaces.id`.<fk table='workspaces' column='id'\/>",
+            "format": "uuid",
+            "type": "string"
+        },
+        "title": {
+            "format": "text",
+            "type": "string"
+        },
+        "description": {
+            "format": "text",
+            "type": "string"
+        },
+        "customer_name": {
+            "format": "text",
+            "type": "string"
+        },
+        "status": {
+            "default": "todo",
+            "format": "text",
+            "type": "string"
+        },
+        "column_id": {
+            "default": "todo",
+            "format": "text",
+            "type": "string"
+        },
+        "position": {
+            "default": 0,
+            "format": "numeric",
+            "type": "number"
+        },
+        "agent_plan": {
+            "format": "jsonb"
+        },
+        "execution_id": {
+            "format": "text",
+            "type": "string"
+        },
+        "agent_response": {
+            "format": "jsonb"
+        },
+        "created_by": {
+            "format": "uuid",
+            "type": "string"
+        },
+        "created_at": {
+            "default": "now()",
+            "format": "timestamp with time zone",
+            "type": "string"
+        },
+        "updated_at": {
+            "default": "now()",
+            "format": "timestamp with time zone",
+            "type": "string"
+        }
+    }
+}

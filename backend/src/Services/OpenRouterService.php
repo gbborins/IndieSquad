@@ -57,7 +57,7 @@ class OpenRouterService
         return $headers;
     }
 
-    private function chat(array $messages, array $extra = []): array
+    public function chat(array $messages, array $extra = []): array
     {
         $payload = array_merge([
             'model' => $this->model,
@@ -80,96 +80,5 @@ class OpenRouterService
         } catch (GuzzleException $e) {
             throw new \Exception('Erro HTTP OpenRouter: ' . $e->getMessage());
         }
-    }
-
-    public function generatePlan(array $task): array
-    {
-        $messages = [
-            [
-                'role' => 'system',
-                'content' => 'Você é um agente que cria planos de execução para tarefas comerciais e técnicas. Responda somente em JSON válido.'
-            ],
-            [
-                'role' => 'user',
-                'content' => json_encode([
-                    'instruction' => 'Crie um plano objetivo para executar a tarefa. Retorne JSON com as chaves summary, steps, estimated_output.',
-                    'task' => [
-                        'title' => $task['title'] ?? '',
-                        'description' => $task['description'] ?? '',
-                        'customer_name' => $task['customer_name'] ?? null
-                    ]
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
-            ]
-        ];
-
-        $data = $this->chat($messages, [
-            'temperature' => 0.3,
-        ]);
-
-        $content = $data['choices'][0]['message']['content'] ?? null;
-
-        if (!$content) {
-            throw new \Exception('O OpenRouter não retornou conteúdo para generatePlan');
-        }
-
-        $decoded = json_decode($content, true);
-
-        if (is_array($decoded)) {
-            return $decoded;
-        }
-
-        return [
-            'summary' => $content,
-            'steps' => [],
-            'estimated_output' => []
-        ];
-    }
-
-    public function executeApprovedTask(array $task): array
-    {
-        $messages = [
-            [
-                'role' => 'system',
-                'content' => 'Você é um agente executor. Execute a tarefa aprovada e responda somente em JSON válido.'
-            ],
-            [
-                'role' => 'user',
-                'content' => json_encode([
-                    'instruction' => 'Com base na tarefa e no plano aprovado, gere uma resposta de execução em JSON com as chaves execution_summary, deliverables, next_actions, status.',
-                    'task' => [
-                        'id' => $task['id'] ?? null,
-                        'title' => $task['title'] ?? '',
-                        'description' => $task['description'] ?? '',
-                        'customer_name' => $task['customer_name'] ?? null,
-                        'agent_plan' => $task['agent_plan'] ?? null
-                    ]
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
-            ]
-        ];
-
-        $data = $this->chat($messages, [
-            'temperature' => 0.4,
-        ]);
-
-        $content = $data['choices'][0]['message']['content'] ?? null;
-
-        if (!$content) {
-            throw new \Exception('O OpenRouter não retornou conteúdo para executeApprovedTask');
-        }
-
-        $decoded = json_decode($content, true);
-
-        if (is_array($decoded)) {
-            $decoded['execution_id'] = $decoded['execution_id'] ?? uniqid('exec_', true);
-            return $decoded;
-        }
-
-        return [
-            'execution_id' => uniqid('exec_', true),
-            'execution_summary' => $content,
-            'deliverables' => [],
-            'next_actions' => [],
-            'status' => 'running'
-        ];
     }
 }

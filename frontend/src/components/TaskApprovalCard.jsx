@@ -1,20 +1,23 @@
+import WorkflowTimeline from "./WorkflowTimeline";
+
 export default function TaskApprovalCard({ task, onApprove }) {
-  if (task.status !== "pending_approval") return null;
+  if (task.status !== "in_review") return null;
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: 16, marginTop: 16 }}>
-      <h3>Aprovação necessária</h3>
+    <>
+      <h3>[ QUALITY GATE ] - Aguardando Aprovação Humana</h3>
       <p><strong>Tarefa:</strong> {task.title}</p>
-      <p><strong>Descrição:</strong> {task.description}</p>
+      
+      <WorkflowTimeline log={task.workflow_log} />
 
-      <h4>Plano do agente</h4>
-      <pre style={{ whiteSpace: "pre-wrap" }}>
+      <h4>PLANO DO ORQUESTRADOR</h4>
+      <pre>
         {JSON.stringify(task.agent_plan, null, 2)}
       </pre>
 
-      <button onClick={() => onApprove(task.id)}>
-        Aprovar execução
+      <button onClick={() => onApprove(task.id)} style={{marginTop: 16}}>
+        [ APROVAR EXECUÇÃO ]
       </button>
-    </div>
+    </>
   );
 }

@@ -4,17 +4,27 @@ namespace App\Controllers;
 
 use App\Services\SupabaseService;
 use App\Services\OpenRouterService;
+use App\Services\AgentManager;
+use App\Agents\OrchestratorAgent;
+use App\Agents\PlannerAgent;
+use App\Agents\BlogWriterAgent;
 use App\Utils\JsonResponse;
 
 class TaskController
 {
     private SupabaseService $supabase;
-    private OpenRouterService $openRouter;
+    private AgentManager $squad;
 
     public function __construct()
     {
         $this->supabase = new SupabaseService();
-        $this->openRouter = new OpenRouterService();
+        $openRouter = new OpenRouterService();
+        
+        // Inicializa o Service Container do Esquadrão
+        $this->squad = new AgentManager();
+        $this->squad->register(new OrchestratorAgent($openRouter));
+        $this->squad->register(new PlannerAgent($openRouter));
+        $this->squad->register(new BlogWriterAgent($openRouter));
     }
 
     public function createTask(): void
@@ -28,18 +38,24 @@ class TaskController
             JsonResponse::send(['error' => 'title e description são obrigatórios'], 422);
         }
 
+        // 1. Persiste a intenção inicial
         $task = $this->supabase->createTask([
             'title' => $input['title'],
             'description' => $input['description'],
             'customer_name' => $input['customer_name'] ?? null,
-            'status' => 'draft'
+            'status' => 'todo',
+            'column_id' => 'todo'
         ]);
 
-        $plan = $this->openRouter->generatePlan($task);
+        // 2. Chama a Cadeia de Agentes: Orquestrador → Planejador
+        $chainResult = $this->squad->runChain(['orchestrator', 'planner'], $task);
 
+        // 3. Trava na Aprovação e guarda o plano + workflow_log
         $updatedTask = $this->supabase->updateTask($task['id'], [
-            'status' => 'pending_approval',
-            'agent_plan' => $plan
+            'status' => 'in_review',
+            'column_id' => 'in_review',
+            'agent_plan' => $chainResult,
+            'workflow_log' => json_encode($chainResult['workflow_log'] ?? [])
         ]);
 
         JsonResponse::send(['task' => $updatedTask], 201);
@@ -53,31 +69,43 @@ class TaskController
             JsonResponse::send(['error' => 'Tarefa não encontrada'], 404);
         }
 
-        if (($task['status'] ?? null) !== 'pending_approval') {
+        if (($task['status'] ?? null) !== 'in_review') {
             JsonResponse::send(['error' => 'Tarefa não está aguardando aprovação'], 409);
         }
 
         $approvedTask = $this->supabase->updateTask($id, [
-            'status' => 'approved'
+            'status' => 'in_progress', // Status passa a ser Running temporariamente no frontend
+            'column_id' => 'in_progress'
         ]);
 
-        $execution = $this->openRouter->executeApprovedTask($approvedTask);
+        // 3. Delega para os Agentes de Execução Especialistas (ex: Blog Writer)
+        // Passa o workflow_log existente para o chain continuar acumulando
+        $approvedTask['workflow_log'] = $approvedTask['workflow_log'] ?? '[]';
+        $execution = $this->squad->runChain(['blog_writer'], $approvedTask);
 
-        $finalStatus = $execution['status'] ?? 'completed';
+        $finalStatus = $execution['status'] ?? 'done';
 
-        $runningTask = $this->supabase->updateTask($id, [
+        // 4. Salva a execução final das roles
+        $completedTask = $this->supabase->updateTask($id, [
             'status' => $finalStatus,
+            'column_id' => $finalStatus,
             'execution_id' => $execution['execution_id'] ?? null,
-            'agent_response' => $execution
+            'agent_response' => $execution,
+            'workflow_log' => json_encode($execution['workflow_log'] ?? [])
         ]);
 
-        JsonResponse::send(['task' => $runningTask], 200);
+        JsonResponse::send(['task' => $completedTask], 200);
     }
 
     public function listTasks(): void
     {
         $tasks = $this->supabase->listTasks();
-        JsonResponse::send(['tasks' => $tasks]);
+        $roster = $this->squad->getSquadRoster(); // Extra métrica opcional do Backend
+        
+        JsonResponse::send([
+            'tasks' => $tasks,
+            'active_agents' => $roster
+        ]);
     }
 
     public function getTask(string $id): void
