@@ -3,10 +3,10 @@ export default function TaskStatusList({ tasks }) {
 
   // Agrupa as tarefas pelas colunas do Kanban
   const columns = {
-    "A Fazer": tasks.filter((t) => t.status === "draft"),
-    "Em Progresso": tasks.filter((t) => t.status === "running"),
-    "Em Revisão (Humano)": tasks.filter((t) => t.status === "pending_approval"),
-    "Concluído": tasks.filter((t) => t.status !== "draft" && t.status !== "running" && t.status !== "pending_approval"),
+    "A Fazer": tasks.filter((t) => t.status === "todo"),
+    "Em Progresso": tasks.filter((t) => t.status === "in_progress"),
+    "Em Revisão (Humano)": tasks.filter((t) => t.status === "in_review"),
+    "Concluído": tasks.filter((t) => t.status !== "todo" && t.status !== "in_progress" && t.status !== "in_review"),
   };
 
   return (

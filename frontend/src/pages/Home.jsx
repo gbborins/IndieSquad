@@ -12,7 +12,7 @@ export default function Home() {
   const [isApproving, setIsApproving] = useState(false);
 
   const selectedTask =
-    tasks.find((t) => t.status === "pending_approval") || null;
+    tasks.find((t) => t.status === "in_review") || null;
 
   async function loadTasks() {
     try {

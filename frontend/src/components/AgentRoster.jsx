@@ -7,7 +7,7 @@ export default function AgentRoster({ tasks, activeAgents, isSubmitting, isAppro
     blog_writer: { name: "Redator", role: "Blog Writer", status: "Idle", color: "var(--primary)" },
   };
 
-  const isWaitingApproval = tasks.some(t => t.status === "pending_approval");
+  const isWaitingApproval = tasks.some(t => t.status === "in_review");
 
   if (isSubmitting) {
     squadState.orchestrator.status = "Planejando...";

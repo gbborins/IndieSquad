@@ -41,7 +41,8 @@ class TaskController
             'title' => $input['title'],
             'description' => $input['description'],
             'customer_name' => $input['customer_name'] ?? null,
-            'status' => 'draft'
+            'status' => 'todo',
+            'column_id' => 'todo'
         ]);
 
         // 2. Chama o Agente Orquestrador para Planejar
@@ -49,7 +50,8 @@ class TaskController
 
         // 3. Trava na Aprovação e guarda o plano
         $updatedTask = $this->supabase->updateTask($task['id'], [
-            'status' => 'pending_approval',
+            'status' => 'in_review',
+            'column_id' => 'in_review',
             'agent_plan' => $plan
         ]);
 
@@ -64,22 +66,24 @@ class TaskController
             JsonResponse::send(['error' => 'Tarefa não encontrada'], 404);
         }
 
-        if (($task['status'] ?? null) !== 'pending_approval') {
+        if (($task['status'] ?? null) !== 'in_review') {
             JsonResponse::send(['error' => 'Tarefa não está aguardando aprovação'], 409);
         }
 
         $approvedTask = $this->supabase->updateTask($id, [
-            'status' => 'running' // Status passa a ser Running temporariamente no frontend
+            'status' => 'in_progress', // Status passa a ser Running temporariamente no frontend
+            'column_id' => 'in_progress'
         ]);
 
         // 3. Delega para os Agentes de Execução Especialistas (ex: Blog Writer)
         $execution = $this->squad->run('blog_writer', $approvedTask);
 
-        $finalStatus = $execution['status'] ?? 'completed';
+        $finalStatus = $execution['status'] ?? 'done';
 
         // 4. Salva a execução final das roles
         $completedTask = $this->supabase->updateTask($id, [
             'status' => $finalStatus,
+            'column_id' => $finalStatus,
             'execution_id' => $execution['execution_id'] ?? null,
             'agent_response' => $execution
         ]);
