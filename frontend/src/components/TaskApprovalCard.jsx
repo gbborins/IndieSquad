@@ -1,5 +1,5 @@
 export default function TaskApprovalCard({ task, onApprove }) {
-  if (task.status !== "pending_approval") return null;
+  if (task.status !== "in_review") return null;
 
   return (
     <>
