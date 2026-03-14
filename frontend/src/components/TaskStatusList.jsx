@@ -1,7 +1,27 @@
+const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
+
+function PixelIcon({ name, size = 16 }) {
+  return (
+    <img
+      src={`${ICON_BASE}/${name}.svg`}
+      alt={name}
+      width={size}
+      height={size}
+      style={{ imageRendering: "pixelated", verticalAlign: "middle" }}
+    />
+  );
+}
+
+const columnIcons = {
+  "A Fazer": "list",
+  "Em Progresso": "loader",
+  "Em Revisão (Humano)": "human-handsup",
+  "Concluído": "check",
+};
+
 export default function TaskStatusList({ tasks }) {
   if (!tasks || tasks.length === 0) return <p className="empty-state">Nenhuma tarefa encontrada no servidor.</p>;
 
-  // Agrupa as tarefas pelas colunas do Kanban
   const columns = {
     "A Fazer": tasks.filter((t) => t.status === "todo"),
     "Em Progresso": tasks.filter((t) => t.status === "in_progress"),
@@ -13,14 +33,16 @@ export default function TaskStatusList({ tasks }) {
     <div className="kanban-board">
       {Object.entries(columns).map(([colName, colTasks]) => (
         <div key={colName} className="kanban-col">
-          <h3 className="kanban-title">{colName}</h3>
+          <h3 className="kanban-title">
+            <PixelIcon name={columnIcons[colName] || "coin"} size={18} /> {colName}
+          </h3>
           <div className="kanban-items">
             {colTasks.length === 0 ? (
               <p className="empty-state">Vazio</p>
             ) : (
               colTasks.map((t) => (
                 <div key={t.id} className="kanban-card">
-                  <h4>{t.title}</h4>
+                  <h4><PixelIcon name="note" size={14} /> {t.title}</h4>
                   <span className={`status-badge ${t.status}`}>{t.status}</span>
                 </div>
               ))

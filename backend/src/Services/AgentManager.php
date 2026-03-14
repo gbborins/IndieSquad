@@ -43,4 +43,54 @@ class AgentManager
     {
         return array_keys($this->agents);
     }
+
+    /**
+     * Executa uma cadeia sequencial de agentes, acumulando o workflow_log
+     * Cada agente recebe o output do anterior via _chain_output
+     */
+    public function runChain(array $agentNames, array $task): array
+    {
+        $workflowLog = $task['workflow_log'] ?? [];
+        if (is_string($workflowLog)) {
+            $workflowLog = json_decode($workflowLog, true) ?? [];
+        }
+
+        $chainOutput = null;
+        $lastResult = [];
+
+        foreach ($agentNames as $agentName) {
+            // Injeta o output do agente anterior
+            if ($chainOutput !== null) {
+                $task['_chain_output'] = $chainOutput;
+            }
+
+            $result = $this->run($agentName, $task);
+
+            // Monta a entrada do log
+            $workflowLog[] = [
+                'agent' => $agentName,
+                'action' => $this->describeAction($agentName),
+                'timestamp' => date('c'),
+                'status' => isset($result['error']) ? 'failed' : 'success',
+                'summary' => $result['summary'] ?? $result['strategy_summary'] ?? $result['execution_summary'] ?? 'Executado',
+            ];
+
+            $chainOutput = $result;
+            $lastResult = $result;
+        }
+
+        $lastResult['workflow_log'] = $workflowLog;
+        return $lastResult;
+    }
+
+    private function describeAction(string $agentName): string
+    {
+        return match ($agentName) {
+            'orchestrator' => 'Criou o plano tático da missão',
+            'planner' => 'Definiu a estratégia de conteúdo e SEO',
+            'blog_writer' => 'Redigiu os textos finais',
+            'designer' => 'Gerou os assets visuais',
+            default => 'Executou tarefa'
+        };
+    }
 }

@@ -185,8 +185,9 @@
   height: 60px;
   border-radius: 50%;
   border: 3px solid #fff;
-  background-size: cover;
-  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .agent-info {
@@ -216,3 +217,103 @@
   font-weight: bold;
   letter-spacing: -0.5px;
 }
+
+/* Workflow Timeline */
+.workflow-timeline {
+  margin: 16px 0;
+  padding: 16px;
+  background: #000;
+  border: 2px solid var(--border);
+}
+
+.workflow-timeline h4 {
+  margin: 0 0 16px;
+  color: var(--secondary);
+  font-size: 14px;
+  text-shadow: none;
+}
+
+.timeline-track {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.timeline-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  border-left: 3px solid var(--border);
+  margin-left: 20px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.timeline-step.success {
+  border-left-color: var(--secondary);
+}
+
+.timeline-step.failed {
+  border-left-color: var(--primary);
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -16px;
+  top: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark-accent);
+  border-radius: 50%;
+  border: 2px solid var(--secondary);
+  padding: 2px;
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeline-agent {
+  font-family: var(--heading);
+  font-weight: 700;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: var(--tertiary);
+}
+
+.timeline-action {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #ccc;
+}
+
+.timeline-summary {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--secondary);
+  font-style: italic;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.timeline-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #666;
+}
+
+/* Status badge updates for new statuses */
+.status-badge.todo { background: #555; }
+.status-badge.in_progress { background: var(--secondary); color: #000; }
+.status-badge.in_review { background: var(--tertiary); color: #000; }
+.status-badge.done { background: #00FF00; color: #000; }
+

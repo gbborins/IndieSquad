@@ -6,6 +6,7 @@ use App\Services\SupabaseService;
 use App\Services\OpenRouterService;
 use App\Services\AgentManager;
 use App\Agents\OrchestratorAgent;
+use App\Agents\PlannerAgent;
 use App\Agents\BlogWriterAgent;
 use App\Utils\JsonResponse;
 
@@ -22,6 +23,7 @@ class TaskController
         // Inicializa o Service Container do Esquadrão
         $this->squad = new AgentManager();
         $this->squad->register(new OrchestratorAgent($openRouter));
+        $this->squad->register(new PlannerAgent($openRouter));
         $this->squad->register(new BlogWriterAgent($openRouter));
     }
 
@@ -45,14 +47,15 @@ class TaskController
             'column_id' => 'todo'
         ]);
 
-        // 2. Chama o Agente Orquestrador para Planejar
-        $plan = $this->squad->run('orchestrator', $task);
+        // 2. Chama a Cadeia de Agentes: Orquestrador → Planejador
+        $chainResult = $this->squad->runChain(['orchestrator', 'planner'], $task);
 
-        // 3. Trava na Aprovação e guarda o plano
+        // 3. Trava na Aprovação e guarda o plano + workflow_log
         $updatedTask = $this->supabase->updateTask($task['id'], [
             'status' => 'in_review',
             'column_id' => 'in_review',
-            'agent_plan' => $plan
+            'agent_plan' => $chainResult,
+            'workflow_log' => json_encode($chainResult['workflow_log'] ?? [])
         ]);
 
         JsonResponse::send(['task' => $updatedTask], 201);
@@ -76,7 +79,9 @@ class TaskController
         ]);
 
         // 3. Delega para os Agentes de Execução Especialistas (ex: Blog Writer)
-        $execution = $this->squad->run('blog_writer', $approvedTask);
+        // Passa o workflow_log existente para o chain continuar acumulando
+        $approvedTask['workflow_log'] = $approvedTask['workflow_log'] ?? '[]';
+        $execution = $this->squad->runChain(['blog_writer'], $approvedTask);
 
         $finalStatus = $execution['status'] ?? 'done';
 
@@ -85,7 +90,8 @@ class TaskController
             'status' => $finalStatus,
             'column_id' => $finalStatus,
             'execution_id' => $execution['execution_id'] ?? null,
-            'agent_response' => $execution
+            'agent_response' => $execution,
+            'workflow_log' => json_encode($execution['workflow_log'] ?? [])
         ]);
 
         JsonResponse::send(['task' => $completedTask], 200);
