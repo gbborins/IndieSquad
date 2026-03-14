@@ -57,16 +57,27 @@ class AgentManager
 
         $chainOutput = null;
         $lastResult = [];
+        $tokenUsage = []; // Acumula os tokens gastos por agente
 
         foreach ($agentNames as $agentName) {
-            // Injeta o output do agente anterior
             if ($chainOutput !== null) {
                 $task['_chain_output'] = $chainOutput;
             }
 
             $result = $this->run($agentName, $task);
 
-            // Monta a entrada do log
+            // Acumula o uso de tokens
+            if (isset($result['_usage'])) {
+                $tokenUsage[] = [
+                    'agent' => $agentName,
+                    'prompt_tokens' => $result['_usage']['prompt_tokens'] ?? 0,
+                    'completion_tokens' => $result['_usage']['completion_tokens'] ?? 0,
+                    'total_tokens' => $result['_usage']['total_tokens'] ?? 0,
+                    'timestamp' => date('c'),
+                ];
+                unset($result['_usage']); // Limpa do output final
+            }
+
             $workflowLog[] = [
                 'agent' => $agentName,
                 'action' => $this->describeAction($agentName),
@@ -80,6 +91,7 @@ class AgentManager
         }
 
         $lastResult['workflow_log'] = $workflowLog;
+        $lastResult['_token_usage'] = $tokenUsage;
         return $lastResult;
     }
 

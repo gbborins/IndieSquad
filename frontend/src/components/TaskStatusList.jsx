@@ -44,6 +44,23 @@ export default function TaskStatusList({ tasks }) {
                 <div key={t.id} className="kanban-card">
                   <h4><PixelIcon name="note" size={14} /> {t.title}</h4>
                   <span className={`status-badge ${t.status}`}>{t.status}</span>
+                  
+                  {t.status === 'done' && t.agent_response && t.agent_response.deliverables && (
+                    <div className="task-deliverables">
+                      <h5><PixelIcon name="folder" size={12} /> Entregáveis</h5>
+                      {Array.isArray(t.agent_response.deliverables) ? (
+                        <ul>
+                          {t.agent_response.deliverables.map((deliv, idx) => (
+                            <li key={idx}>
+                              <strong>{deliv.type || 'Item'}:</strong> {deliv.description || typeof deliv === 'string' ? deliv : JSON.stringify(deliv)}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>{typeof t.agent_response.deliverables === 'string' ? t.agent_response.deliverables : "Ver resposta JSON completa..."}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))
             )}

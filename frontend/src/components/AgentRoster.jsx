@@ -26,6 +26,7 @@ export default function AgentRoster({ tasks, activeAgents, isSubmitting, isAppro
     orchestrator: { name: "Orquestrador", role: "Mission Control", status: "Idle", color: "var(--secondary)", icon: "gamepad" },
     planner: { name: "Planejador", role: "Estratégia", status: "Idle", color: "#A855F7", icon: "chart" },
     blog_writer: { name: "Redator", role: "Blog Writer", status: "Idle", color: "var(--primary)", icon: "edit" },
+    designer: { name: "Designer", role: "Visual Assets", status: "Idle", color: "#F59E0B", icon: "paint-bucket" },
   };
 
   const isWaitingApproval = tasks.some(t => t.status === "in_review");
@@ -40,10 +41,13 @@ export default function AgentRoster({ tasks, activeAgents, isSubmitting, isAppro
     squadState.planner.status = "Monitorando";
     squadState.blog_writer.status = "Escrevendo...";
     squadState.blog_writer.color = "var(--tertiary)";
+    squadState.designer.status = "Criando Assets...";
+    squadState.designer.color = "var(--tertiary)";
   } else if (isWaitingApproval) {
     squadState.orchestrator.status = "Aguardando Humano";
     squadState.planner.status = "Standby";
     squadState.blog_writer.status = "Standby";
+    squadState.designer.status = "Standby";
   }
 
   return (
