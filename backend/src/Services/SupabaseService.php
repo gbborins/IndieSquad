@@ -164,4 +164,16 @@ class SupabaseService
         $rows = json_decode($response->getBody()->getContents(), true);
         return $rows[0] ?? [];
     }
+
+    /**
+     * Deleta mensagens do chat de um usuário (opcionalmente filtrado por agente)
+     */
+    public function deleteChatMessages(string $userId, ?string $agentName = null): void
+    {
+        $query = "chat_messages?user_id=eq.$userId";
+        if ($agentName) {
+            $query .= "&agent_name=eq.$agentName";
+        }
+        $this->client->delete($query);
+    }
 }

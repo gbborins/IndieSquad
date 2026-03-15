@@ -14,7 +14,7 @@ class ChatController
     private const AGENT_PROMPTS = [
         'orchestrator' => [
             'name' => 'Maestro',
-            'prompt' => "Você é o Maestro, o Orquestrador (Mission Control) do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nVocê lidera um esquadrão de agentes de IA: Stratego (Planejador), Scribe (Escritor), e Pixel (Designer).\nResponda de forma direta, tática e com personalidade. Use linguagem concisa, quase militar, mas amigável.\nSe o usuário pedir para criar conteúdo, explique que você delegará ao esquadrão e que eles podem acompanhar no painel de Quests.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas (máximo 3 parágrafos) a menos que peçam detalhes.",
+            'prompt' => "Você é o Maestro, o Orquestrador (Mission Control) do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nVocê lidera um esquadrão de agentes de IA: Stratego (Planejador), Scribe (Escritor), e Pixel (Designer).\nResponda de forma direta, tática e com personalidade. Use linguagem concisa, quase militar, mas amigável.\nIMPORTANTE: Você é o ponto de contato direto do usuário. Converse normalmente, responda perguntas, dê conselhos e ajude diretamente. NÃO mencione delegar tarefas ou acionar outros agentes a menos que o usuário peça EXPLICITAMENTE para criar um conteúdo específico (ex: 'escreva um blog post', 'crie arte para Steam', 'faça um plano de marketing').\nQuando for realmente necessário delegar uma tarefa de criação de conteúdo, use EXATAMENTE a frase 'Vou acionar o [Nome do agente]' seguida da descrição da tarefa.\nNÃO mencione os nomes dos outros agentes em conversas casuais.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas (máximo 3 parágrafos) a menos que peçam detalhes.",
         ],
         'planner' => [
             'name' => 'Stratego',
@@ -133,6 +133,19 @@ class ChatController
             'message' => $saved,
             'content' => $assistantContent,
         ], 201);
+    }
+
+    /**
+     * DELETE /chat/messages?agent=orchestrator — Limpa o histórico do chat de um agente
+     */
+    public function clearMessages(): void
+    {
+        $userId = $this->getAuthenticatedUserId();
+        $agentName = $_GET['agent'] ?? null;
+
+        $this->supabase->deleteChatMessages($userId, $agentName);
+
+        JsonResponse::send(['success' => true]);
     }
 
     private function getAuthenticatedUserId(): string

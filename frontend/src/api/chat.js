@@ -38,3 +38,17 @@ export async function sendChatMessage(content, agentName = 'orchestrator') {
 
   return response.json();
 }
+
+export async function clearChatMessages(agentName = 'orchestrator') {
+  const params = agentName ? `?agent=${agentName}` : '';
+  const response = await fetch(`${API_BASE_URL}/chat/messages${params}`, {
+    method: "DELETE",
+    headers: await getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao limpar mensagens");
+  }
+
+  return response.json();
+}

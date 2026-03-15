@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchChatMessages, sendChatMessage } from '../../api/chat';
+import { fetchChatMessages, sendChatMessage, clearChatMessages } from '../../api/chat';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
 const AGENT_META = {
-  orchestrator: { name: 'Maestro',  icon: 'gamepad',      color: '#ff5555' },
-  planner:      { name: 'Stratego', icon: 'clipboard',    color: '#55aaff' },
-  blog_writer:  { name: 'Scribe',   icon: 'edit',         color: '#55ff55' },
-  designer:     { name: 'Pixel',    icon: 'paint-bucket', color: '#ffaa55' },
+  orchestrator: { name: 'Maestro', icon: 'gamepad', color: '#ff5555' },
+  planner: { name: 'Stratego', icon: 'clipboard', color: '#55aaff' },
+  blog_writer: { name: 'Scribe', icon: 'edit', color: '#55ff55' },
+  designer: { name: 'Pixel', icon: 'paint-bucket', color: '#ffaa55' },
 };
 
 function PixelIcon({ name, size = 18 }) {
@@ -157,11 +157,11 @@ export default function ChatPanel({ activeAgent = 'orchestrator', onUnreadChange
         [activeAgent]: [...(prev[activeAgent] || []), assistantMsg],
       }));
 
-      // Check if the response mentions delegating to another agent
+      // Check if the response explicitly delegates (matches "Vou acionar o X" phrasing from Maestro's prompt)
       const delegationPatterns = {
-        planner: /stratego|planejador/i,
-        blog_writer: /scribe|escritor/i,
-        designer: /pixel|designer/i,
+        planner: /vou acionar o stratego/i,
+        blog_writer: /vou acionar o scribe/i,
+        designer: /vou acionar o pixel/i,
       };
 
       // If Maestro delegates, actually send the task to that agent
@@ -244,6 +244,22 @@ export default function ChatPanel({ activeAgent = 'orchestrator', onUnreadChange
                 {agentMeta.name}
               </span>
               <span className="chat-agent-header-tag">online</span>
+              <button
+                className="chat-clear-btn"
+                title="Limpar conversa"
+                onClick={async () => {
+                  if (!confirm(`Limpar toda a conversa com ${agentMeta.name}?`)) return;
+                  try {
+                    await clearChatMessages(activeAgent);
+                    setMessagesMap((prev) => ({ ...prev, [activeAgent]: [] }));
+                    setError(null);
+                  } catch {
+                    setError('Falha ao limpar conversa.');
+                  }
+                }}
+              >
+                <PixelIcon name="trash" size={14} />
+              </button>
             </div>
 
             <div className="guild-chat-messages">

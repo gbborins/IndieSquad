@@ -1519,6 +1519,42 @@
   margin-left: auto;
 }
 
+.chat-clear-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+  margin-left: 6px;
+  transform: none;
+  box-shadow: none;
+}
+
+.chat-clear-btn:hover {
+  background: rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.3);
+  transform: none;
+  box-shadow: none;
+}
+
+.chat-clear-btn img {
+  filter: invert(1) !important;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.chat-clear-btn:hover img {
+  opacity: 0.9;
+  filter: invert(0.5) sepia(1) saturate(5) hue-rotate(-10deg) !important;
+}
+
 /* Guild Chat — Responsive */
 @media (max-width: 900px) {
   .guild-chat-container {
