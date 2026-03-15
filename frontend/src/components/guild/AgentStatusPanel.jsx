@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { AGENTS } from '../../config/agents';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
@@ -13,13 +14,6 @@ function PixelIcon({ name, size = 20 }) {
     />
   );
 }
-
-const AGENT_META = {
-  orchestrator: { name: 'Maestro',  role: 'Orchestrator', icon: 'gamepad', color: '#ff5555', desc: 'Cria o plano tático da missão' },
-  planner:      { name: 'Stratego', role: 'Planner',      icon: 'clipboard', color: '#55aaff', desc: 'Define estratégia e SEO' },
-  blog_writer:  { name: 'Scribe',   role: 'Writer',       icon: 'feather', color: '#55ff55', desc: 'Redige textos finais' },
-  designer:     { name: 'Pixel',    role: 'Designer',     icon: 'image', color: '#ffaa55', desc: 'Gera assets visuais' },
-};
 
 const STATUS_CONFIG = {
   idle:        { label: 'Standby',     dotClass: 'dot-idle',    icon: 'moon' },
@@ -36,7 +30,7 @@ function getStatusFromTask(status) {
 }
 
 export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [], selectedAgent, onAgentClick, unreadCounts = {} }) {
-  const agentIds = Object.keys(AGENT_META);
+  const agentIds = Object.keys(AGENTS);
 
   return (
     <div className="agent-status-panel" id="agent-status-panel">
@@ -47,7 +41,7 @@ export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [],
 
       <div className="agent-cards-list">
         {agentIds.map((id) => {
-          const meta = AGENT_META[id];
+          const meta = AGENTS[id];
           const rawStatus = agentStatuses[id] || 'idle';
           const state = getStatusFromTask(rawStatus);
           const cfg = STATUS_CONFIG[state];
@@ -96,7 +90,7 @@ export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [],
         ) : (
           <div className="timeline-list">
             {workflowLog.slice(-6).reverse().map((entry, idx) => {
-              const meta = AGENT_META[entry.agent];
+              const meta = AGENTS[entry.agent];
               return (
                 <div key={idx} className="timeline-entry">
                   <div className="timeline-dot" style={{ background: meta?.color || '#888' }} />

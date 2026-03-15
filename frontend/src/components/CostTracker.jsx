@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from '../lib/supabase';
+import { AGENT_ICONS } from '../config/agents';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -16,12 +17,7 @@ function PixelIcon({ name, size = 16 }) {
   );
 }
 
-const agentIcons = {
-  orchestrator: "gamepad",
-  planner: "chart",
-  blog_writer: "feather",
-  designer: "image",
-};
+const agentIcons = AGENT_ICONS;
 
 export default function CostTracker() {
   const [stats, setStats] = useState(null);

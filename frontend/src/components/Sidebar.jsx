@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -31,6 +31,11 @@ export default function Sidebar() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Sync sidebar width to CSS custom property for fixed-position elements
+  useEffect(() => {
+    document.documentElement.style.setProperty('--sidebar-current-width', expanded ? '220px' : '68px');
+  }, [expanded]);
 
   const handleNav = (path) => {
     navigate(path);

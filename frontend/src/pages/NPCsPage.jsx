@@ -1,23 +1,6 @@
-const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
+import { AGENTS, AGENTS_LIST } from '../config/agents';
 
-const AGENTS_INFO = [
-  { name: 'Maestro', role: 'Orchestrator', emoji: '🎮', color: '#ff5555',
-    desc: 'Orquestra a equipe e cria planos táticos baseados no briefing do usuário.',
-    skills: ['Planejamento', 'Distribuição de tarefas', 'Revisão de qualidade'],
-    model: 'DeepSeek R1' },
-  { name: 'Stratego', role: 'Planner', emoji: '📋', color: '#55aaff',
-    desc: 'Define estratégias de SEO, posicionamento de conteúdo e análise de mercado.',
-    skills: ['SEO', 'Análise competitiva', 'Estratégia de conteúdo'],
-    model: 'DeepSeek R1' },
-  { name: 'Scribe', role: 'Writer', emoji: '✍️', color: '#55ff55',
-    desc: 'Redige textos finais como blog posts, copies e documentação técnica.',
-    skills: ['Redação', 'Copywriting', 'Documentação'],
-    model: 'DeepSeek V3' },
-  { name: 'Pixel', role: 'Designer', emoji: '🎨', color: '#ffaa55',
-    desc: 'Gera prompts de imagem e conceitos visuais para assets do projeto.',
-    skills: ['Design Visual', 'Concept Art', 'Prompt Engineering'],
-    model: 'DeepSeek V3' },
-];
+const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
 export default function NPCsPage() {
   return (
@@ -30,11 +13,11 @@ export default function NPCsPage() {
       <p className="page-description">Conheça cada membro da guilda e suas especialidades.</p>
 
       <div className="npcs-grid">
-        {AGENTS_INFO.map(agent => (
+        {AGENTS_LIST.map(agent => (
           <div key={agent.name} className="npc-profile-card" style={{ borderTopColor: agent.color }}>
             <div className="npc-profile-header">
               <div className="npc-avatar" style={{ background: agent.color + '22' }}>
-                <span className="npc-emoji">{agent.emoji}</span>
+                <span className="npc-emoji">{agent.avatar}</span>
               </div>
               <div>
                 <h3 className="npc-name">{agent.name}</h3>

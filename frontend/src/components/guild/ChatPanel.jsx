@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchChatMessages, sendChatMessage, clearChatMessages } from '../../api/chat';
+import { AGENTS } from '../../config/agents';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
 const AGENT_META = {
-  orchestrator: { name: 'Maestro', icon: 'gamepad', color: '#ff5555' },
-  planner: { name: 'Stratego', icon: 'clipboard', color: '#55aaff' },
-  blog_writer: { name: 'Scribe', icon: 'feather', color: '#55ff55' },
-  designer: { name: 'Pixel', icon: 'image', color: '#ffaa55' },
+  orchestrator: { name: AGENTS.orchestrator.name, icon: AGENTS.orchestrator.icon, color: AGENTS.orchestrator.color },
+  planner: { name: AGENTS.planner.name, icon: AGENTS.planner.icon, color: AGENTS.planner.color },
+  blog_writer: { name: AGENTS.blog_writer.name, icon: AGENTS.blog_writer.icon, color: AGENTS.blog_writer.color },
+  designer: { name: AGENTS.designer.name, icon: AGENTS.designer.icon, color: AGENTS.designer.color },
 };
 
 function PixelIcon({ name, size = 18 }) {

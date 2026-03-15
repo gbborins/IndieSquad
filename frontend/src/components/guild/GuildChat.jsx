@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createTask, approveTask } from '../../api/tasks';
+import { AGENTS } from '../../config/agents';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 const STORAGE_KEY = 'guild_chat_messages';
@@ -16,13 +17,6 @@ function PixelIcon({ name, size = 16 }) {
     />
   );
 }
-
-const AGENTS = {
-  orchestrator: { name: 'Maestro', role: 'Orchestrator', icon: 'gamepad', color: '#ff5555', avatar: '🎮' },
-  planner:      { name: 'Stratego', role: 'Planner', icon: 'clipboard', color: '#55aaff', avatar: '📋' },
-  blog_writer:  { name: 'Scribe', role: 'Writer', icon: 'feather', color: '#55ff55', avatar: '✍️' },
-  designer:     { name: 'Pixel', role: 'Designer', icon: 'image', color: '#ffaa55', avatar: '🎨' },
-};
 
 function generateImageUrl(prompt) {
   if (!prompt) return null;
@@ -340,7 +334,7 @@ export default function GuildChat({ onTaskCreated }) {
                         <div className="dc-msg-avatar" style={{ background: AGENTS.designer.color + '33' }}>{AGENTS.designer.avatar}</div>
                         <div className="dc-msg-body">
                           <div className="dc-msg-header">
-                            <span className="dc-msg-name" style={{ color: AGENTS.designer.color }}>Pixel</span>
+                            <span className="dc-msg-name" style={{ color: AGENTS.designer.color }}>{AGENTS.designer.name}</span>
                             <span className="dc-msg-time">{timeAgo(msg.timestamp)}</span>
                           </div>
                           <div className="dc-images-row">
@@ -410,7 +404,7 @@ export default function GuildChat({ onTaskCreated }) {
                     <div className="dc-msg-avatar" style={{ background: AGENTS.orchestrator.color + '33' }}>{AGENTS.orchestrator.avatar}</div>
                     <div className="dc-msg-body">
                       <div className="dc-msg-header">
-                        <span className="dc-msg-name" style={{ color: AGENTS.orchestrator.color }}>Maestro</span>
+                        <span className="dc-msg-name" style={{ color: AGENTS.orchestrator.color }}>{AGENTS.orchestrator.name}</span>
                         <span className="dc-msg-role">está digitando</span>
                       </div>
                       <div className="dc-typing"><span /><span /><span /></div>

@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import UsoPage from "./pages/UsoPage";
 import MemoriaPage from "./pages/MemoriaPage";
 import NPCsPage from "./pages/NPCsPage";
+import ResetPassword from "./pages/ResetPassword";
+import ContaPage from "./pages/ContaPage";
 import Layout from "./components/Layout";
 
 function ProtectedRoute({ children }) {
@@ -25,6 +27,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             element={
               <ProtectedRoute>
@@ -38,6 +41,7 @@ export default function App() {
             <Route path="/npcs" element={<NPCsPage />} />
             <Route path="/memoria" element={<MemoriaPage />} />
             <Route path="/uso" element={<UsoPage />} />
+            <Route path="/conta" element={<ContaPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -444,6 +444,56 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+/* Forgot password link */
+.auth-forgot {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.auth-forgot a {
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.auth-forgot a:hover {
+  color: var(--secondary);
+}
+
+/* Reset password success message */
+.auth-success-msg {
+  text-align: center;
+  padding: 20px;
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+}
+
+.auth-success-msg img {
+  filter: invert(1);
+  opacity: 0.6;
+}
+
+.auth-success-msg p {
+  margin: 6px 0;
+}
+
+/* Memory page item timestamp */
+.memory-item-time {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.2);
+  font-family: var(--mono);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.memory-item-user .memory-item-agent {
+  color: var(--primary) !important;
+}
+
 /* =========================================
    DASHBOARD â€” Mission Control
    ========================================= */
@@ -1170,10 +1220,10 @@
 .dc-chat-bar {
   position: fixed;
   bottom: 0;
-  left: var(--sidebar-width, 240px);
+  left: var(--sidebar-current-width, 68px);
   right: 0;
   z-index: 900;
-  transition: left 0.3s ease;
+  transition: left 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* Collapsed bar */
@@ -2139,6 +2189,259 @@
   font-weight: 700;
   color: #fff;
   margin: 0 0 8px;
+}
+
+/* ═════════════════════════════════════
+   CONTA PAGE (User Profile)
+   ═════════════════════════════════════ */
+
+.conta-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 700px;
+}
+
+.conta-card {
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.conta-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 16px;
+}
+
+.conta-card-title img {
+  filter: invert(1);
+  opacity: 0.5;
+}
+
+/* Profile Card */
+.conta-profile {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.conta-avatar-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.conta-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
+}
+
+.conta-avatar-fallback {
+  width: 80px;
+  height: 80px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary) 0%, #4444ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.conta-provider-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.05);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.conta-provider-badge img {
+  filter: invert(1);
+  opacity: 0.5;
+}
+
+.conta-info {
+  flex: 1;
+}
+
+.conta-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.conta-email {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin: 0 0 12px;
+}
+
+.conta-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 4px;
+}
+
+.conta-meta-row img {
+  filter: invert(1);
+  opacity: 0.4;
+}
+
+/* Squad Grid */
+.conta-squad-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.conta-squad-member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border-left: 3px solid;
+}
+
+.conta-squad-avatar {
+  font-size: 20px;
+}
+
+.conta-squad-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.conta-squad-role {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Action Buttons */
+.conta-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.conta-action-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.conta-action-btn img {
+  filter: invert(1);
+  opacity: 0.6;
+}
+
+.conta-action-btn.primary {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.25);
+  color: #4ade80;
+}
+
+.conta-action-btn.primary:hover {
+  background: rgba(74, 222, 128, 0.2);
+}
+
+.conta-action-btn.danger {
+  background: rgba(255, 85, 85, 0.1);
+  border-color: rgba(255, 85, 85, 0.2);
+  color: #ff5555;
+}
+
+.conta-action-btn.danger:hover {
+  background: rgba(255, 85, 85, 0.2);
+}
+
+/* Password Form */
+.conta-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.conta-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.conta-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.conta-msg.error {
+  color: #ff5555;
+  background: rgba(255, 85, 85, 0.08);
+}
+
+.conta-msg.success {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.conta-msg img {
+  filter: invert(1);
+  opacity: 0.6;
+}
+
+.conta-danger {
+  border-color: rgba(255, 85, 85, 0.15);
+}
+
+@media (max-width: 600px) {
+  .conta-profile {
+    flex-direction: column;
+    text-align: center;
+  }
+  .conta-squad-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ═════════════════════════════════════

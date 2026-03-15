@@ -1,4 +1,5 @@
 import React from "react";
+import { AGENTS } from '../config/agents';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
@@ -14,35 +15,28 @@ function PixelIcon({ name, size = 24 }) {
   );
 }
 
-const agentIcons = {
-  orchestrator: "gamepad",
-  planner: "chart",
-  blog_writer: "feather",
-  designer: "image",
-};
-
 export default function AgentRoster({ tasks, activeAgents, isSubmitting, isApproving }) {
   const squadState = {
-    orchestrator: { name: "Orquestrador", role: "Mission Control", status: "Idle", color: "var(--secondary)", icon: "gamepad" },
-    planner: { name: "Planejador", role: "Estratégia", status: "Idle", color: "#A855F7", icon: "chart" },
-    blog_writer: { name: "Redator", role: "Blog Writer", status: "Idle", color: "var(--primary)", icon: "feather" },
-    designer: { name: "Designer", role: "Visual Assets", status: "Idle", color: "#F59E0B", icon: "image" },
+    orchestrator: { name: AGENTS.orchestrator.name, role: 'Mission Control', status: 'Idle', color: AGENTS.orchestrator.color, icon: AGENTS.orchestrator.icon },
+    planner:      { name: AGENTS.planner.name, role: 'Estratégia', status: 'Idle', color: AGENTS.planner.color, icon: AGENTS.planner.icon },
+    blog_writer:  { name: AGENTS.blog_writer.name, role: 'Blog Writer', status: 'Idle', color: AGENTS.blog_writer.color, icon: AGENTS.blog_writer.icon },
+    designer:     { name: AGENTS.designer.name, role: 'Visual Assets', status: 'Idle', color: AGENTS.designer.color, icon: AGENTS.designer.icon },
   };
 
   const isWaitingApproval = tasks.some(t => t.status === "in_review");
 
   if (isSubmitting) {
     squadState.orchestrator.status = "Planejando...";
-    squadState.orchestrator.color = "var(--tertiary)";
+    squadState.orchestrator.color = AGENTS.orchestrator.color;
     squadState.planner.status = "Analisando...";
-    squadState.planner.color = "var(--tertiary)";
+    squadState.planner.color = AGENTS.planner.color;
   } else if (isApproving) {
     squadState.orchestrator.status = "Monitorando";
     squadState.planner.status = "Monitorando";
     squadState.blog_writer.status = "Escrevendo...";
-    squadState.blog_writer.color = "var(--tertiary)";
+    squadState.blog_writer.color = AGENTS.blog_writer.color;
     squadState.designer.status = "Criando Assets...";
-    squadState.designer.color = "var(--tertiary)";
+    squadState.designer.color = AGENTS.designer.color;
   } else if (isWaitingApproval) {
     squadState.orchestrator.status = "Aguardando Humano";
     squadState.planner.status = "Standby";
