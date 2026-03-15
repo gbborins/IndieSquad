@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
@@ -17,17 +18,24 @@ function PixelIcon({ name, size = 24 }) {
 }
 
 const menuItems = [
-  { label: "Guilda", icon: "monitor" },
-  { label: "Quests", icon: "list" },
-  { label: "NPCs", icon: "robot" },
-  { label: "Memoria", icon: "brain" },
-  { label: "Uso", icon: "coin" },
+  { label: "Guilda", icon: "monitor", path: "/guilda" },
+  { label: "Quests", icon: "list", path: "/quests" },
+  { label: "NPCs", icon: "robot", path: "/npcs" },
+  { label: "Memoria", icon: "brain", path: "/memoria" },
+  { label: "Uso", icon: "coin", path: "/uso" },
 ];
 
 export default function Sidebar() {
   const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNav = (path) => {
+    navigate(path);
+    setMobileOpen(false);
+  };
 
   return (
     <>
@@ -61,7 +69,7 @@ export default function Sidebar() {
         onMouseLeave={() => setExpanded(false)}
       >
         {/* Logo */}
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" onClick={() => handleNav('/')} style={{ cursor: 'pointer' }}>
           <div className="sidebar-logo-icon" />
           <AnimatePresence>
             {expanded && (
@@ -80,26 +88,33 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav className="sidebar-nav">
-          {menuItems.map((item, idx) => (
-            <button key={idx} className="sidebar-link">
-              <div className="sidebar-link-icon">
-                <PixelIcon name={item.icon} size={22} />
-              </div>
-              <AnimatePresence>
-                {expanded && (
-                  <motion.span
-                    className="sidebar-link-label"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.2, delay: 0.05 + idx * 0.02 }}
-                  >
-                    {item.label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-          ))}
+          {menuItems.map((item, idx) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={idx}
+                className={`sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={() => handleNav(item.path)}
+              >
+                <div className="sidebar-link-icon">
+                  <PixelIcon name={item.icon} size={22} />
+                </div>
+                <AnimatePresence>
+                  {expanded && (
+                    <motion.span
+                      className="sidebar-link-label"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.2, delay: 0.05 + idx * 0.02 }}
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Bottom area */}
@@ -118,7 +133,7 @@ export default function Sidebar() {
               <span>Sair</span>
             </motion.button>
           )}
-          <button className="sidebar-link sidebar-account">
+          <button className="sidebar-link sidebar-account" onClick={() => handleNav('/conta')}>
             <div className="sidebar-link-icon account-avatar">
               <PixelIcon name="user" size={18} />
             </div>
