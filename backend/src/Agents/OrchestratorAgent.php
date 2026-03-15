@@ -36,6 +36,12 @@ class OrchestratorAgent extends BaseAgent
 
         $content = $data['choices'][0]['message']['content'] ?? '{}';
         
-        return $this->parseJsonResponse($content);
+        $decoded = $this->parseJsonResponse($content);
+
+        if (isset($data['usage'])) {
+            $decoded['_usage'] = $data['usage'];
+        }
+
+        return $decoded;
     }
 }

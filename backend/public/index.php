@@ -22,6 +22,7 @@ $router->add('GET', '/tasks', [$controller, 'listTasks']);
 $router->add('GET', '/tasks/{id}', [$controller, 'getTask']);
 $router->add('POST', '/tasks', [$controller, 'createTask']);
 $router->add('POST', '/tasks/{id}/approve', [$controller, 'approveTask']);
+$router->add('GET', '/stats/tokens', [$controller, 'getTokenStats']);
 try {
     $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 } catch (\Throwable $e) {

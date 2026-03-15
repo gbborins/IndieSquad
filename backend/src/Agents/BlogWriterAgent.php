@@ -39,8 +39,12 @@ class BlogWriterAgent extends BaseAgent
         $content = $data['choices'][0]['message']['content'] ?? '{}';
         $decoded = $this->parseJsonResponse($content);
 
-        // Garante a existência do execution_id que o backend precisa
         $decoded['execution_id'] = $decoded['execution_id'] ?? uniqid('exec_', true);
+
+        if (isset($data['usage'])) {
+            $decoded['_usage'] = $data['usage'];
+        }
+
         return $decoded;
     }
 }

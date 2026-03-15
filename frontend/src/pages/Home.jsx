@@ -4,6 +4,7 @@ import TaskForm from "../components/TaskForm";
 import TaskApprovalCard from "../components/TaskApprovalCard";
 import TaskStatusList from "../components/TaskStatusList";
 import AgentRoster from "../components/AgentRoster";
+import CostTracker from "../components/CostTracker";
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
@@ -83,6 +84,8 @@ export default function Home() {
       <p style={{marginBottom: 24}}>Solicite uma tarefa ao agente, revise o plano e aprove a execução.</p>
 
       <AgentRoster tasks={tasks} activeAgents={activeAgents} isSubmitting={isSubmitting} isApproving={isApproving} />
+
+      <CostTracker />
 
       <div className="task-form-container">
         <TaskForm onCreate={handleCreate} />
