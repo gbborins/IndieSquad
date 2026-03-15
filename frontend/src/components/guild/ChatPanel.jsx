@@ -4,6 +4,13 @@ import { fetchChatMessages, sendChatMessage } from '../../api/chat';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
+const AGENT_META = {
+  orchestrator: { name: 'Maestro',  icon: 'gamepad',      color: '#ff5555' },
+  planner:      { name: 'Stratego', icon: 'clipboard',    color: '#55aaff' },
+  blog_writer:  { name: 'Scribe',   icon: 'edit',         color: '#55ff55' },
+  designer:     { name: 'Pixel',    icon: 'paint-bucket', color: '#ffaa55' },
+};
+
 function PixelIcon({ name, size = 18 }) {
   return (
     <img
@@ -26,7 +33,7 @@ function TypingIndicator() {
   );
 }
 
-function ChatBubble({ msg, isUser }) {
+function ChatBubble({ msg, isUser, agentMeta }) {
   return (
     <motion.div
       className={`chat-bubble ${isUser ? 'chat-bubble-user' : 'chat-bubble-assistant'}`}
@@ -35,12 +42,16 @@ function ChatBubble({ msg, isUser }) {
       transition={{ duration: 0.2, ease: 'easeOut' }}
     >
       {!isUser && (
-        <div className="chat-bubble-avatar">
-          <PixelIcon name="gamepad" size={16} />
+        <div className="chat-bubble-avatar" style={{ background: (agentMeta?.color || '#ff5555') + '22' }}>
+          <PixelIcon name={agentMeta?.icon || 'gamepad'} size={16} />
         </div>
       )}
       <div className="chat-bubble-content">
-        {!isUser && <span className="chat-bubble-name">Maestro</span>}
+        {!isUser && (
+          <span className="chat-bubble-name" style={{ color: agentMeta?.color || '#ff5555' }}>
+            {agentMeta?.name || 'Agente'}
+          </span>
+        )}
         <p className="chat-bubble-text">{msg.content}</p>
         <span className="chat-bubble-time">
           {msg.created_at
@@ -52,37 +63,69 @@ function ChatBubble({ msg, isUser }) {
   );
 }
 
-export default function ChatPanel() {
-  const [messages, setMessages] = useState([]);
+export default function ChatPanel({ activeAgent = 'orchestrator', onUnreadChange }) {
+  // Per-agent message cache
+  const [messagesMap, setMessagesMap] = useState({});
   const [input, setInput] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState(null);
+  const [unreadCounts, setUnreadCounts] = useState({});
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const prevAgentRef = useRef(activeAgent);
+
+  const agentMeta = AGENT_META[activeAgent] || AGENT_META.orchestrator;
+  const messages = messagesMap[activeAgent] || [];
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  // Carrega histórico ao abrir
+  // Load messages when agent changes or chat opens
   useEffect(() => {
     if (!isOpen) return;
-    fetchChatMessages()
+    fetchChatMessages(activeAgent)
       .then((data) => {
-        setMessages(data.messages || []);
+        setMessagesMap((prev) => ({
+          ...prev,
+          [activeAgent]: data.messages || [],
+        }));
         setError(null);
+        // Clear unread for this agent
+        setUnreadCounts((prev) => {
+          const next = { ...prev };
+          delete next[activeAgent];
+          return next;
+        });
       })
       .catch(() => setError('Sem conexão com o servidor'))
       .finally(() => setTimeout(scrollToBottom, 100));
-  }, [isOpen, scrollToBottom]);
+  }, [isOpen, activeAgent, scrollToBottom]);
 
-  // Auto-scroll ao receber novas mensagens
+  // Clear unread when switching to an agent
+  useEffect(() => {
+    if (prevAgentRef.current !== activeAgent) {
+      prevAgentRef.current = activeAgent;
+      setUnreadCounts((prev) => {
+        const next = { ...prev };
+        delete next[activeAgent];
+        return next;
+      });
+    }
+  }, [activeAgent]);
+
+  // Propagate unread counts to parent
+  useEffect(() => {
+    onUnreadChange?.(unreadCounts);
+  }, [unreadCounts, onUnreadChange]);
+
+  // Auto-scroll on new messages
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Foca no input ao abrir
+  // Focus input on open
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 200);
@@ -93,27 +136,78 @@ export default function ChatPanel() {
     const content = input.trim();
     if (!content || isSending) return;
 
-    // Optimistic: adiciona a mensagem do user imediatamente
     const userMsg = { role: 'user', content, created_at: new Date().toISOString() };
-    setMessages((prev) => [...prev, userMsg]);
+    setMessagesMap((prev) => ({
+      ...prev,
+      [activeAgent]: [...(prev[activeAgent] || []), userMsg],
+    }));
     setInput('');
     setIsSending(true);
     setError(null);
 
     try {
-      const data = await sendChatMessage(content);
-      // Adiciona a resposta do assistente
+      const data = await sendChatMessage(content, activeAgent);
       const assistantMsg = data.message || {
         role: 'assistant',
         content: data.content,
         created_at: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, assistantMsg]);
+      setMessagesMap((prev) => ({
+        ...prev,
+        [activeAgent]: [...(prev[activeAgent] || []), assistantMsg],
+      }));
+
+      // Check if the response mentions delegating to another agent
+      const delegationPatterns = {
+        planner: /stratego|planejador/i,
+        blog_writer: /scribe|escritor/i,
+        designer: /pixel|designer/i,
+      };
+
+      // If Maestro delegates, actually send the task to that agent
+      if (activeAgent === 'orchestrator' && data.content) {
+        for (const [agentKey, pattern] of Object.entries(delegationPatterns)) {
+          if (pattern.test(data.content)) {
+            // Fire and forget — send the user's message to the delegated agent
+            (async () => {
+              try {
+                const delegatedData = await sendChatMessage(
+                  content,
+                  agentKey
+                );
+                const delegatedMsg = delegatedData.message || {
+                  role: 'assistant',
+                  content: delegatedData.content,
+                  created_at: new Date().toISOString(),
+                };
+                // Store the delegated agent's response in their chat
+                setMessagesMap((prev) => ({
+                  ...prev,
+                  [agentKey]: [
+                    ...(prev[agentKey] || []),
+                    { role: 'user', content, created_at: new Date().toISOString() },
+                    delegatedMsg,
+                  ],
+                }));
+                // Show notification badge
+                setUnreadCounts((prev) => ({
+                  ...prev,
+                  [agentKey]: (prev[agentKey] || 0) + 1,
+                }));
+              } catch (e) {
+                console.warn(`Delegation to ${agentKey} failed:`, e.message);
+              }
+            })();
+          }
+        }
+      }
     } catch (err) {
       setError('Falha ao enviar. Tente novamente.');
-      // Remove a mensagem optimistic se deu erro
-      setMessages((prev) => prev.filter((m) => m !== userMsg));
-      setInput(content); // Restaura o input
+      setMessagesMap((prev) => ({
+        ...prev,
+        [activeAgent]: (prev[activeAgent] || []).filter((m) => m !== userMsg),
+      }));
+      setInput(content);
     } finally {
       setIsSending(false);
     }
@@ -126,11 +220,12 @@ export default function ChatPanel() {
     }
   };
 
-  const unreadCount = 0; // futuro: contar mensagens não lidas
+  // Total unread for the toggle badge
+  const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
 
   return (
     <div className={`guild-chat-container ${isOpen ? 'open' : ''}`} id="guild-chat">
-      {/* Chat Panel (expandido) */}
+      {/* Chat Panel (expanded) */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -140,12 +235,23 @@ export default function ChatPanel() {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
           >
+            {/* Chat header showing active agent */}
+            <div className="chat-agent-header" style={{ borderBottomColor: agentMeta.color + '33' }}>
+              <div className="chat-agent-header-avatar" style={{ background: agentMeta.color + '22' }}>
+                <PixelIcon name={agentMeta.icon} size={16} />
+              </div>
+              <span className="chat-agent-header-name" style={{ color: agentMeta.color }}>
+                {agentMeta.name}
+              </span>
+              <span className="chat-agent-header-tag">online</span>
+            </div>
+
             <div className="guild-chat-messages">
               {messages.length === 0 && !error && (
                 <div className="chat-empty-state">
-                  <PixelIcon name="gamepad" size={32} />
-                  <p>Maestro aguardando ordens, Comandante.</p>
-                  <span>Diga ao esquadrão o que fazer.</span>
+                  <PixelIcon name={agentMeta.icon} size={32} />
+                  <p>{agentMeta.name} aguardando ordens, Comandante.</p>
+                  <span>Diga ao {agentMeta.name} o que fazer.</span>
                 </div>
               )}
               {error && (
@@ -155,15 +261,15 @@ export default function ChatPanel() {
                 </div>
               )}
               {messages.map((msg, idx) => (
-                <ChatBubble key={idx} msg={msg} isUser={msg.role === 'user'} />
+                <ChatBubble key={idx} msg={msg} isUser={msg.role === 'user'} agentMeta={agentMeta} />
               ))}
               {isSending && (
                 <div className="chat-bubble chat-bubble-assistant">
-                  <div className="chat-bubble-avatar">
-                    <PixelIcon name="gamepad" size={16} />
+                  <div className="chat-bubble-avatar" style={{ background: agentMeta.color + '22' }}>
+                    <PixelIcon name={agentMeta.icon} size={16} />
                   </div>
                   <div className="chat-bubble-content">
-                    <span className="chat-bubble-name">Maestro</span>
+                    <span className="chat-bubble-name" style={{ color: agentMeta.color }}>{agentMeta.name}</span>
                     <TypingIndicator />
                   </div>
                 </div>
@@ -174,16 +280,17 @@ export default function ChatPanel() {
         )}
       </AnimatePresence>
 
-      {/* Chat Bar (sempre visível) */}
+      {/* Chat Bar (always visible) */}
       <div className="guild-chat-bar">
         <button
           className="chat-toggle-btn"
           onClick={() => setIsOpen(!isOpen)}
           title={isOpen ? 'Minimizar chat' : 'Abrir chat'}
+          style={{ background: agentMeta.color + '25', borderColor: agentMeta.color + '40' }}
         >
           <PixelIcon name={isOpen ? 'chevron-down' : 'message'} size={18} />
-          {!isOpen && unreadCount > 0 && (
-            <span className="chat-unread-badge">{unreadCount}</span>
+          {!isOpen && totalUnread > 0 && (
+            <span className="chat-unread-badge">{totalUnread > 9 ? '9+' : totalUnread}</span>
           )}
         </button>
 
@@ -192,7 +299,7 @@ export default function ChatPanel() {
             ref={inputRef}
             type="text"
             className="chat-input"
-            placeholder="> Fale com o Maestro..."
+            placeholder={`> Fale com o ${agentMeta.name}...`}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}

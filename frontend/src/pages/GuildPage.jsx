@@ -8,6 +8,8 @@ export default function GuildPage() {
   const [agentStatuses, setAgentStatuses] = useState({});
   const [workflowLog, setWorkflowLog] = useState([]);
   const [selectedAgent, setSelectedAgent] = useState(null);
+  const [chatAgent, setChatAgent] = useState('orchestrator');
+  const [unreadCounts, setUnreadCounts] = useState({});
   const [error, setError] = useState(null);
 
   const loadStatus = useCallback(async () => {
@@ -23,7 +25,6 @@ export default function GuildPage() {
       }
       setError(null);
     } catch (err) {
-      // Don't crash — just show offline status
       console.warn('Guild status fetch failed:', err.message);
       setError('Sem conexão com o servidor');
     }
@@ -34,6 +35,15 @@ export default function GuildPage() {
     const interval = setInterval(loadStatus, 5000);
     return () => clearInterval(interval);
   }, [loadStatus]);
+
+  const handleAgentClick = (agentId) => {
+    setSelectedAgent(agentId);
+    setChatAgent(agentId);
+  };
+
+  const handleUnreadChange = useCallback((counts) => {
+    setUnreadCounts(counts);
+  }, []);
 
   return (
     <div className="guild-page" id="guild-page">
@@ -47,17 +57,21 @@ export default function GuildPage() {
         </div>
         <PixelOffice
           agentStatuses={agentStatuses}
-          onAgentClick={setSelectedAgent}
+          onAgentClick={handleAgentClick}
         />
-        <p className="guild-hint">Clique em um agente para ver detalhes</p>
+        <p className="guild-hint">Clique em um agente para conversar</p>
       </div>
       <AgentStatusPanel
         agentStatuses={agentStatuses}
         workflowLog={workflowLog}
-        selectedAgent={selectedAgent}
-        onAgentClick={setSelectedAgent}
+        selectedAgent={chatAgent}
+        onAgentClick={handleAgentClick}
+        unreadCounts={unreadCounts}
       />
-      <ChatPanel />
+      <ChatPanel
+        activeAgent={chatAgent}
+        onUnreadChange={handleUnreadChange}
+      />
     </div>
   );
 }

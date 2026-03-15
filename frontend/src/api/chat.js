@@ -12,8 +12,9 @@ async function getAuthHeaders() {
   };
 }
 
-export async function fetchChatMessages() {
-  const response = await fetch(`${API_BASE_URL}/chat/messages`, {
+export async function fetchChatMessages(agentName = 'orchestrator') {
+  const params = agentName ? `?agent=${agentName}` : '';
+  const response = await fetch(`${API_BASE_URL}/chat/messages${params}`, {
     headers: await getAuthHeaders(),
   });
 
@@ -24,11 +25,11 @@ export async function fetchChatMessages() {
   return response.json();
 }
 
-export async function sendChatMessage(content) {
+export async function sendChatMessage(content, agentName = 'orchestrator') {
   const response = await fetch(`${API_BASE_URL}/chat/messages`, {
     method: "POST",
     headers: await getAuthHeaders(),
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({ content, agent: agentName }),
   });
 
   if (!response.ok) {

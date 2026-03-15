@@ -11,6 +11,25 @@ class ChatController
     private SupabaseService $supabase;
     private OpenRouterService $llm;
 
+    private const AGENT_PROMPTS = [
+        'orchestrator' => [
+            'name' => 'Maestro',
+            'prompt' => "Você é o Maestro, o Orquestrador (Mission Control) do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nVocê lidera um esquadrão de agentes de IA: Stratego (Planejador), Scribe (Escritor), e Pixel (Designer).\nResponda de forma direta, tática e com personalidade. Use linguagem concisa, quase militar, mas amigável.\nSe o usuário pedir para criar conteúdo, explique que você delegará ao esquadrão e que eles podem acompanhar no painel de Quests.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas (máximo 3 parágrafos) a menos que peçam detalhes.",
+        ],
+        'planner' => [
+            'name' => 'Stratego',
+            'prompt' => "Você é o Stratego, o Planejador Estratégico do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nSua especialidade é criar planos de marketing, definir estratégias de SEO, posicionamento de marca e calendários de conteúdo.\nVocê é analítico, metódico e adora dados. Fala como um estrategista inteligente mas acessível.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas e objetivas (máximo 3 parágrafos) a menos que peçam detalhes.",
+        ],
+        'blog_writer' => [
+            'name' => 'Scribe',
+            'prompt' => "Você é o Scribe, o Escritor do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nSua especialidade é redigir textos finais: blog posts, descrições de jogos, comunicados de imprensa e copy para redes sociais.\nVocê é criativo, eloquente e sabe adaptar o tom para diferentes públicos. Fala com entusiasmo sobre games.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas e objetivas (máximo 3 parágrafos) a menos que peçam detalhes.",
+        ],
+        'designer' => [
+            'name' => 'Pixel',
+            'prompt' => "Você é o Pixel, o Designer do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nSua especialidade é gerar assets visuais, dar direção de arte, sugerir paletas de cores e layouts.\nVocê é visual, criativo e fala usando analogias visuais. Pensa em termos de composição, cores e impacto visual.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas e objetivas (máximo 3 parágrafos) a menos que peçam detalhes.",
+        ],
+    ];
+
     public function __construct()
     {
         $this->supabase = new SupabaseService();
@@ -18,18 +37,20 @@ class ChatController
     }
 
     /**
-     * GET /chat/messages — Lista o histórico do chat do usuário
+     * GET /chat/messages?agent=orchestrator — Lista o histórico do chat do usuário para um agente
      */
     public function getMessages(): void
     {
         $userId = $this->getAuthenticatedUserId();
-        $messages = $this->supabase->listChatMessages($userId);
+        $agentName = $_GET['agent'] ?? null;
+
+        $messages = $this->supabase->listChatMessages($userId, 50, $agentName);
 
         JsonResponse::send(['messages' => $messages]);
     }
 
     /**
-     * POST /chat/messages — Recebe mensagem do usuário, envia ao Orquestrador, retorna resposta
+     * POST /chat/messages — Recebe mensagem do usuário, envia ao agente especificado, retorna resposta
      */
     public function sendMessage(): void
     {
@@ -42,36 +63,37 @@ class ChatController
         }
 
         $userContent = trim($input['content']);
+        $agentName = $input['agent'] ?? 'orchestrator';
+
+        // Validate agent name
+        if (!isset(self::AGENT_PROMPTS[$agentName])) {
+            JsonResponse::send(['error' => 'Agente inválido'], 422);
+            return;
+        }
+
+        $agentConfig = self::AGENT_PROMPTS[$agentName];
 
         // 1. Persiste a mensagem do usuário
         $this->supabase->createChatMessage([
             'user_id' => $userId,
             'role' => 'user',
             'content' => $userContent,
-            'agent_name' => 'orchestrator',
+            'agent_name' => $agentName,
         ]);
 
-        // 2. Busca as últimas mensagens como contexto
-        $history = $this->supabase->listChatMessages($userId, 20);
+        // 2. Busca as últimas mensagens como contexto (filtradas por agente)
+        $history = $this->supabase->listChatMessages($userId, 20, $agentName);
 
         // 3. Monta o array de mensagens para o LLM
         $llmMessages = [
             [
                 'role' => 'system',
-                'content' => implode("\n", [
-                    'Você é o Maestro, o Orquestrador (Mission Control) do Indie Squad — uma plataforma de marketing para estúdios indie de games.',
-                    'Você lidera um esquadrão de agentes de IA: Stratego (Planejador), Scribe (Escritor), e Pixel (Designer).',
-                    'Responda de forma direta, tática e com personalidade. Use linguagem concisa, quase militar, mas amigável.',
-                    'Se o usuário pedir para criar conteúdo, explique que você delegará ao esquadrão e que eles podem acompanhar no painel de Quests.',
-                    'Responda sempre em português brasileiro.',
-                    'Mantenha as respostas curtas (máximo 3 parágrafos) a menos que peçam detalhes.',
-                ])
+                'content' => $agentConfig['prompt'],
             ]
         ];
 
         // Adiciona histórico recente como contexto
         foreach ($history as $msg) {
-            // Pula a mensagem que acabamos de inserir (já é a última do user)
             $llmMessages[] = [
                 'role' => $msg['role'] === 'user' ? 'user' : 'assistant',
                 'content' => $msg['content'],
@@ -90,13 +112,13 @@ class ChatController
             if (isset($data['usage'])) {
                 $this->supabase->logTokenUsage(
                     'chat',
-                    'orchestrator',
+                    $agentName,
                     $data['usage']['prompt_tokens'] ?? 0,
                     $data['usage']['completion_tokens'] ?? 0
                 );
             }
         } catch (\Exception $e) {
-            $assistantContent = 'Maestro offline no momento. Tente novamente em instantes. (Erro: ' . $e->getMessage() . ')';
+            $assistantContent = $agentConfig['name'] . ' offline no momento. Tente novamente em instantes. (Erro: ' . $e->getMessage() . ')';
         }
 
         // 6. Persiste a resposta do assistente
@@ -104,7 +126,7 @@ class ChatController
             'user_id' => $userId,
             'role' => 'assistant',
             'content' => $assistantContent,
-            'agent_name' => 'orchestrator',
+            'agent_name' => $agentName,
         ]);
 
         JsonResponse::send([

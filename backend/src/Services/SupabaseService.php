@@ -143,11 +143,13 @@ class SupabaseService
     /**
      * Lista mensagens do chat de um usuário (ordenadas por created_at)
      */
-    public function listChatMessages(string $userId, int $limit = 50): array
+    public function listChatMessages(string $userId, int $limit = 50, ?string $agentName = null): array
     {
-        $response = $this->client->get(
-            "chat_messages?user_id=eq.$userId&select=*&order=created_at.asc&limit=$limit"
-        );
+        $query = "chat_messages?user_id=eq.$userId&select=*&order=created_at.asc&limit=$limit";
+        if ($agentName) {
+            $query .= "&agent_name=eq.$agentName";
+        }
+        $response = $this->client->get($query);
         return json_decode($response->getBody()->getContents(), true);
     }
 

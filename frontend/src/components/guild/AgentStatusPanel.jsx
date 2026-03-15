@@ -35,7 +35,7 @@ function getStatusFromTask(status) {
   return 'idle';
 }
 
-export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [], selectedAgent, onAgentClick }) {
+export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [], selectedAgent, onAgentClick, unreadCounts = {} }) {
   const agentIds = Object.keys(AGENT_META);
 
   return (
@@ -52,6 +52,7 @@ export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [],
           const state = getStatusFromTask(rawStatus);
           const cfg = STATUS_CONFIG[state];
           const isSelected = selectedAgent === id;
+          const unread = unreadCounts[id] || 0;
 
           return (
             <motion.div
@@ -62,8 +63,13 @@ export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [],
               whileTap={{ scale: 0.98 }}
               style={{ borderLeftColor: meta.color }}
             >
-              <div className="guild-agent-avatar" style={{ background: meta.color + '22' }}>
+              <div className="guild-agent-avatar" style={{ background: meta.color + '22', position: 'relative' }}>
                 <PixelIcon name={meta.icon} size={20} />
+                {unread > 0 && (
+                  <span className="agent-unread-badge">
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                )}
               </div>
               <div className="guild-agent-info">
                 <div className="guild-agent-name">{meta.name}</div>
