@@ -17,16 +17,16 @@ function PixelIcon({ name, size = 24 }) {
 const agentIcons = {
   orchestrator: "gamepad",
   planner: "chart",
-  blog_writer: "edit",
-  designer: "paint-bucket",
+  blog_writer: "feather",
+  designer: "image",
 };
 
 export default function AgentRoster({ tasks, activeAgents, isSubmitting, isApproving }) {
   const squadState = {
     orchestrator: { name: "Orquestrador", role: "Mission Control", status: "Idle", color: "var(--secondary)", icon: "gamepad" },
     planner: { name: "Planejador", role: "Estratégia", status: "Idle", color: "#A855F7", icon: "chart" },
-    blog_writer: { name: "Redator", role: "Blog Writer", status: "Idle", color: "var(--primary)", icon: "edit" },
-    designer: { name: "Designer", role: "Visual Assets", status: "Idle", color: "#F59E0B", icon: "paint-bucket" },
+    blog_writer: { name: "Redator", role: "Blog Writer", status: "Idle", color: "var(--primary)", icon: "feather" },
+    designer: { name: "Designer", role: "Visual Assets", status: "Idle", color: "#F59E0B", icon: "image" },
   };
 
   const isWaitingApproval = tasks.some(t => t.status === "in_review");
