@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import PixelOffice from '../components/guild/PixelOffice';
 import AgentStatusPanel from '../components/guild/AgentStatusPanel';
+import ChatPanel from '../components/guild/ChatPanel';
 import { fetchAgentStatus } from '../api/agents';
 
 export default function GuildPage() {
@@ -56,6 +57,7 @@ export default function GuildPage() {
         selectedAgent={selectedAgent}
         onAgentClick={setSelectedAgent}
       />
+      <ChatPanel />
     </div>
   );
 }

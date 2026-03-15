@@ -1123,3 +1123,346 @@
     padding: 16px 12px;
   }
 }
+
+/* =========================================
+   GUILD CHAT — Orchestrator Communication
+   ========================================= */
+
+.guild-chat-container {
+  position: fixed;
+  bottom: 0;
+  left: 68px;
+  right: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.guild-chat-container > * {
+  pointer-events: auto;
+}
+
+/* Chat Bar — sempre visível */
+.guild-chat-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 720px;
+  padding: 10px 16px;
+  background: #1a1a2e;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.chat-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 0, 85, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+  transform: none;
+  box-shadow: none;
+  font-style: normal;
+  text-transform: none;
+  position: relative;
+}
+
+.chat-toggle-btn:hover {
+  background: rgba(255, 0, 85, 0.3);
+  transform: none;
+  box-shadow: none;
+  color: #fff;
+}
+
+.chat-unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-input-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px;
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  color: #fff;
+  font-family: var(--mono);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: none !important;
+}
+
+.chat-input:focus {
+  border-color: var(--secondary) !important;
+  box-shadow: 0 0 0 2px rgba(0, 244, 255, 0.1) !important;
+}
+
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+  font-family: var(--mono);
+}
+
+.chat-input:disabled {
+  opacity: 0.5;
+}
+
+.chat-send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+  transform: none;
+  box-shadow: none;
+  font-style: normal;
+  text-transform: none;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+  background: #e60050;
+  transform: scale(1.05);
+  box-shadow: none;
+  color: #fff;
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Chat Panel — expandível */
+.guild-chat-panel {
+  width: 100%;
+  max-width: 720px;
+  background: #14142a;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.guild-chat-messages {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guild-chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.guild-chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.guild-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* Empty State */
+.chat-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.chat-empty-state p {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 4px 0 0;
+}
+
+.chat-empty-state span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.chat-error-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.08);
+  padding: 8px 12px;
+  border-radius: 8px;
+  align-self: center;
+}
+
+/* Chat Bubbles */
+.chat-bubble {
+  display: flex;
+  gap: 10px;
+  max-width: 85%;
+  align-items: flex-start;
+}
+
+.chat-bubble-user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-bubble-assistant {
+  align-self: flex-start;
+}
+
+.chat-bubble-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 85, 85, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.chat-bubble-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-bubble-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ff5555;
+  margin-bottom: 1px;
+}
+
+.chat-bubble-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #fff;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-bubble-user .chat-bubble-text {
+  background: rgba(0, 244, 255, 0.1);
+  border: 1px solid rgba(0, 244, 255, 0.15);
+  border-radius: 12px 12px 2px 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.chat-bubble-assistant .chat-bubble-text {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px 12px 12px 2px;
+}
+
+.chat-bubble-time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.2);
+  font-family: var(--mono);
+}
+
+.chat-bubble-user .chat-bubble-time {
+  text-align: right;
+}
+
+/* Typing Indicator */
+.chat-typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 10px 14px;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+/* Guild Chat — Responsive */
+@media (max-width: 900px) {
+  .guild-chat-container {
+    left: 0;
+  }
+
+  .guild-chat-bar {
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  .guild-chat-panel {
+    max-width: 100%;
+    border-radius: 0;
+  }
+}

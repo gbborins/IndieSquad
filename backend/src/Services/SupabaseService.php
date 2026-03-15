@@ -139,4 +139,27 @@ class SupabaseService
             ];
         }
     }
+
+    /**
+     * Lista mensagens do chat de um usuário (ordenadas por created_at)
+     */
+    public function listChatMessages(string $userId, int $limit = 50): array
+    {
+        $response = $this->client->get(
+            "chat_messages?user_id=eq.$userId&select=*&order=created_at.asc&limit=$limit"
+        );
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
+     * Insere uma nova mensagem no chat
+     */
+    public function createChatMessage(array $data): array
+    {
+        $response = $this->client->post('chat_messages', [
+            'json' => [$data]
+        ]);
+        $rows = json_decode($response->getBody()->getContents(), true);
+        return $rows[0] ?? [];
+    }
 }
