@@ -139,4 +139,44 @@ class SupabaseService
             ];
         }
     }
+
+    // ── Chat Messages ───────────────────────────────────────
+
+    public function getChatMessages(string $userId, string $agent, int $limit = 50): array
+    {
+        try {
+            $response = $this->client->get(
+                "chat_messages?user_id=eq.$userId&agent=eq.$agent&select=*&order=created_at.asc&limit=$limit"
+            );
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\Exception $e) {
+            error_log("getChatMessages failed: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function saveChatMessage(string $userId, string $agent, string $role, string $content): void
+    {
+        try {
+            $this->client->post('chat_messages', [
+                'json' => [[
+                    'user_id' => $userId,
+                    'agent' => $agent,
+                    'role' => $role,
+                    'content' => $content,
+                ]]
+            ]);
+        } catch (\Exception $e) {
+            error_log("saveChatMessage failed: " . $e->getMessage());
+        }
+    }
+
+    public function clearChatMessages(string $userId, string $agent): void
+    {
+        try {
+            $this->client->delete("chat_messages?user_id=eq.$userId&agent=eq.$agent");
+        } catch (\Exception $e) {
+            error_log("clearChatMessages failed: " . $e->getMessage());
+        }
+    }
 }

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { supabase } from '../lib/supabase';
+import { AGENT_ICONS } from '../config/agents';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -15,12 +17,7 @@ function PixelIcon({ name, size = 16 }) {
   );
 }
 
-const agentIcons = {
-  orchestrator: "gamepad",
-  planner: "chart",
-  blog_writer: "feather",
-  designer: "image",
-};
+const agentIcons = AGENT_ICONS;
 
 export default function CostTracker() {
   const [stats, setStats] = useState(null);
@@ -28,7 +25,13 @@ export default function CostTracker() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch(`${API_BASE_URL}/stats/tokens`);
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const headers = {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        };
+        const res = await fetch(`${API_BASE_URL}/stats/tokens`, { headers });
         if (res.ok) {
           const data = await res.json();
           setStats(data);

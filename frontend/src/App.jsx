@@ -1,8 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import GuildPage from "./pages/GuildPage";
+import Home from "./pages/Home";
+import UsoPage from "./pages/UsoPage";
+import MemoriaPage from "./pages/MemoriaPage";
+import NPCsPage from "./pages/NPCsPage";
+import ResetPassword from "./pages/ResetPassword";
+import ContaPage from "./pages/ContaPage";
 import Layout from "./components/Layout";
 
 function ProtectedRoute({ children }) {
@@ -21,7 +27,22 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<ProtectedRoute><Layout><Home /></Layout></ProtectedRoute>} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/" element={<Navigate to="/guilda" replace />} />
+            <Route path="/guilda" element={<GuildPage />} />
+            <Route path="/quests" element={<Home />} />
+            <Route path="/npcs" element={<NPCsPage />} />
+            <Route path="/memoria" element={<MemoriaPage />} />
+            <Route path="/uso" element={<UsoPage />} />
+            <Route path="/conta" element={<ContaPage />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
