@@ -18,7 +18,7 @@
 }
 
 .content-inner {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 32px 40px;
 }
@@ -822,4 +822,304 @@
   background: #1a1a2e;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
+}
+
+/* =========================================
+   GUILD PAGE — Pixel Office
+   ========================================= */
+
+.guild-page {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  align-items: flex-start;
+}
+
+.guild-canvas-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guild-title-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.guild-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.guild-offline-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.guild-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0;
+}
+
+/* Pixel Office Canvas */
+.pixel-office-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a1a2e;
+  padding: 4px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.pixel-office-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Agent Status Panel */
+.agent-status-panel {
+  width: 280px;
+  min-width: 280px;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  position: sticky;
+  top: 32px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* Agent Cards */
+.agent-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guild-agent-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border-left: 3px solid;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.guild-agent-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.guild-agent-card.selected {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
+}
+
+.guild-agent-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guild-agent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.guild-agent-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.guild-agent-role {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.guild-agent-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-idle .status-dot {
+  background: #4ade80;
+  box-shadow: 0 0 4px rgba(74, 222, 128, 0.4);
+}
+.dot-idle { color: #4ade80; }
+
+.dot-typing .status-dot {
+  background: #60a5fa;
+  box-shadow: 0 0 4px rgba(96, 165, 250, 0.4);
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+.dot-typing { color: #60a5fa; }
+
+.dot-reading .status-dot {
+  background: #c084fc;
+  box-shadow: 0 0 4px rgba(192, 132, 252, 0.4);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+.dot-reading { color: #c084fc; }
+
+.dot-waiting .status-dot {
+  background: #fbbf24;
+  box-shadow: 0 0 4px rgba(251, 191, 36, 0.4);
+  animation: pulse-dot 0.8s ease-in-out infinite;
+}
+.dot-waiting { color: #fbbf24; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+/* Guild Timeline */
+.guild-timeline {
+  margin-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
+}
+
+.timeline-empty {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.25);
+  font-style: italic;
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timeline-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.timeline-agent {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.timeline-action {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.25);
+  font-family: var(--mono);
+}
+
+/* Guild Page — Responsive */
+@media (max-width: 900px) {
+  .guild-page {
+    flex-direction: column;
+  }
+
+  .agent-status-panel {
+    width: 100%;
+    min-width: unset;
+    position: static;
+    max-height: unset;
+  }
+
+  .pixel-office-wrapper {
+    overflow-x: auto;
+  }
+
+  .pixel-office-canvas {
+    max-width: unset;
+  }
+}
+
+@media (max-width: 600px) {
+  .guild-title-bar h1 {
+    font-size: 22px;
+  }
+
+  .guild-agent-card {
+    padding: 10px;
+  }
+
+  .content-inner {
+    padding: 16px 12px;
+  }
 }
