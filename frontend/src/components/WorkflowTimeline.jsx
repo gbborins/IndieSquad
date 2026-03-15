@@ -17,8 +17,8 @@ function PixelIcon({ name, size = 24, color }) {
 const agentIcons = {
   orchestrator: "gamepad",
   planner: "chart",
-  blog_writer: "edit",
-  designer: "paint-bucket",
+  blog_writer: "feather",
+  designer: "image",
 };
 
 const agentNames = {
@@ -42,7 +42,7 @@ export default function WorkflowTimeline({ log }) {
         {parsedLog.map((entry, i) => (
           <div key={i} className={`timeline-step ${entry.status}`}>
             <div className="timeline-dot">
-              <PixelIcon name={agentIcons[entry.agent] || "coin"} size={20} />
+              <PixelIcon name={agentIcons[entry.agent] || "wallet"} size={20} />
             </div>
             <div className="timeline-content">
               <span className="timeline-agent">

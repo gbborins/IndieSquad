@@ -1,4 +1,4 @@
-const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
+const ICON_BASE = "https://unpkg.com/pixelarticons@latest/icons";
 
 function PixelIcon({ name, size = 16 }) {
   return (
@@ -7,13 +7,13 @@ function PixelIcon({ name, size = 16 }) {
       alt={name}
       width={size}
       height={size}
-      style={{ imageRendering: "pixelated", verticalAlign: "middle" }}
+      style={{ imageRendering: "pixelated", verticalAlign: "middle", filter: "invert(1)"}}
     />
   );
 }
 
 const columnIcons = {
-  "A Fazer": "list",
+  "A Fazer": "notebook",
   "Em Progresso": "loader",
   "Em Revisão (Humano)": "human-handsup",
   "Concluído": "check",
@@ -34,7 +34,7 @@ export default function TaskStatusList({ tasks }) {
       {Object.entries(columns).map(([colName, colTasks]) => (
         <div key={colName} className="kanban-col">
           <h3 className="kanban-title">
-            <PixelIcon name={columnIcons[colName] || "coin"} size={18} /> {colName}
+            <PixelIcon name={columnIcons[colName] || "wallet"} size={18} /> {colName}
           </h3>
           <div className="kanban-items">
             {colTasks.length === 0 ? (
