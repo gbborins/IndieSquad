@@ -10,7 +10,8 @@ use App\Utils\Router;
 use App\Utils\JsonResponse;
 
 Env::load(dirname(__DIR__));
-header('Access-Control-Allow-Origin: *');
++$allowedOrigin = getenv('SITE_URL') ?: '*';
++header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -37,7 +38,8 @@ $router->add('DELETE', '/chat/messages', [$chatController, 'clearMessages']);
 
 try {
     $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-} catch (\Throwable $e) {
+}
+catch (\Throwable $e) {
     JsonResponse::send([
         'error' => 'Erro interno',
         'message' => $e->getMessage()
