@@ -10,8 +10,8 @@ use App\Utils\Router;
 use App\Utils\JsonResponse;
 
 Env::load(dirname(__DIR__));
-+$allowedOrigin = getenv('SITE_URL') ?: '*';
-+header('Access-Control-Allow-Origin: ' . $allowedOrigin);
+$allowedOrigin = getenv('SITE_URL') ?: '*';
+header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
