@@ -12,22 +12,10 @@ class ChatController
     private OpenRouterService $llm;
 
     private const AGENT_PROMPTS = [
-        'orchestrator' => [
-            'name' => 'Maestro',
-            'prompt' => "Você é o Maestro, o Orquestrador (Mission Control) do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nVocê lidera um esquadrão de agentes de IA: Stratego (Planejador), Scribe (Escritor), e Pixel (Designer).\nResponda de forma direta, tática e com personalidade. Use linguagem concisa, quase militar, mas amigável.\nIMPORTANTE: Você é o ponto de contato direto do usuário. Converse normalmente, responda perguntas, dê conselhos e ajude diretamente. NÃO mencione delegar tarefas ou acionar outros agentes a menos que o usuário peça EXPLICITAMENTE para criar um conteúdo específico (ex: 'escreva um blog post', 'crie arte para Steam', 'faça um plano de marketing').\nQuando for realmente necessário delegar uma tarefa de criação de conteúdo, use EXATAMENTE a frase 'Vou acionar o [Nome do agente]' seguida da descrição da tarefa.\nNÃO mencione os nomes dos outros agentes em conversas casuais.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas (máximo 3 parágrafos) a menos que peçam detalhes.",
-        ],
-        'planner' => [
-            'name' => 'Stratego',
-            'prompt' => "Você é o Stratego, o Planejador Estratégico do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nSua especialidade é criar planos de marketing, definir estratégias de SEO, posicionamento de marca e calendários de conteúdo.\nVocê é analítico, metódico e adora dados. Fala como um estrategista inteligente mas acessível.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas e objetivas (máximo 3 parágrafos) a menos que peçam detalhes.",
-        ],
-        'blog_writer' => [
-            'name' => 'Scribe',
-            'prompt' => "Você é o Scribe, o Escritor do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nSua especialidade é redigir textos finais: blog posts, descrições de jogos, comunicados de imprensa e copy para redes sociais.\nVocê é criativo, eloquente e sabe adaptar o tom para diferentes públicos. Fala com entusiasmo sobre games.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas e objetivas (máximo 3 parágrafos) a menos que peçam detalhes.",
-        ],
-        'designer' => [
-            'name' => 'Pixel',
-            'prompt' => "Você é o Pixel, o Designer do Indie Squad — uma plataforma de marketing para estúdios indie de games.\nSua especialidade é gerar assets visuais, dar direção de arte, sugerir paletas de cores e layouts.\nVocê é visual, criativo e fala usando analogias visuais. Pensa em termos de composição, cores e impacto visual.\nResponda sempre em português brasileiro.\nMantenha as respostas curtas e objetivas (máximo 3 parágrafos) a menos que peçam detalhes.",
-        ],
+        'orchestrator' => 'Você é o Maestro, o orquestrador de um estúdio indie. Você lidera a equipe e cria planos táticos. Quando o usuário pedir algo que outro agente deveria fazer, diga "Vou acionar o Stratego" ou "Vou acionar o Scribe" ou "Vou acionar o Pixel" conforme necessário. Seja amigável e direto.',
+        'planner' => 'Você é o Stratego, o planejador estratégico. Você define estratégias de SEO, posicionamento de conteúdo e análise de mercado. Seja analítico e preciso.',
+        'blog_writer' => 'Você é o Scribe, o redator do estúdio. Você escreve blog posts, copies, documentação e textos criativos. Seja criativo e fluente.',
+        'designer' => 'Você é o Pixel, o designer do estúdio. Você gera conceitos visuais, prompts de imagem e direção de arte. Seja visual e criativo.',
     ];
 
     public function __construct()
@@ -37,115 +25,91 @@ class ChatController
     }
 
     /**
-     * GET /chat/messages?agent=orchestrator — Lista o histórico do chat do usuário para um agente
+     * GET /chat/messages?agent=orchestrator
      */
     public function getMessages(): void
     {
         $userId = $this->getAuthenticatedUserId();
-        $agentName = $_GET['agent'] ?? null;
+        $agent = $_GET['agent'] ?? 'orchestrator';
 
-        $messages = $this->supabase->listChatMessages($userId, 50, $agentName);
-
-        JsonResponse::send(['messages' => $messages]);
+        try {
+            $messages = $this->supabase->getChatMessages($userId, $agent);
+            JsonResponse::send(['messages' => $messages]);
+        } catch (\Exception $e) {
+            JsonResponse::send(['messages' => [], 'error' => $e->getMessage()]);
+        }
     }
 
     /**
-     * POST /chat/messages — Recebe mensagem do usuário, envia ao agente especificado, retorna resposta
+     * POST /chat/messages  { content, agent }
      */
     public function sendMessage(): void
     {
         $userId = $this->getAuthenticatedUserId();
         $input = json_decode(file_get_contents('php://input'), true);
 
-        if (empty($input['content'])) {
-            JsonResponse::send(['error' => 'content é obrigatório'], 422);
+        $content = trim($input['content'] ?? '');
+        $agent = $input['agent'] ?? 'orchestrator';
+
+        if (empty($content)) {
+            JsonResponse::send(['error' => 'Mensagem vazia'], 400);
             return;
         }
 
-        $userContent = trim($input['content']);
-        $agentName = $input['agent'] ?? 'orchestrator';
-
-        // Validate agent name
-        if (!isset(self::AGENT_PROMPTS[$agentName])) {
-            JsonResponse::send(['error' => 'Agente inválido'], 422);
-            return;
-        }
-
-        $agentConfig = self::AGENT_PROMPTS[$agentName];
-
-        // 1. Persiste a mensagem do usuário
-        $this->supabase->createChatMessage([
-            'user_id' => $userId,
-            'role' => 'user',
-            'content' => $userContent,
-            'agent_name' => $agentName,
-        ]);
-
-        // 2. Busca as últimas mensagens como contexto (filtradas por agente)
-        $history = $this->supabase->listChatMessages($userId, 20, $agentName);
-
-        // 3. Monta o array de mensagens para o LLM
-        $llmMessages = [
-            [
-                'role' => 'system',
-                'content' => $agentConfig['prompt'],
-            ]
-        ];
-
-        // Adiciona histórico recente como contexto
-        foreach ($history as $msg) {
-            $llmMessages[] = [
-                'role' => $msg['role'] === 'user' ? 'user' : 'assistant',
-                'content' => $msg['content'],
-            ];
-        }
-
-        // 4. Chama o OpenRouter
         try {
-            $data = $this->llm->chat($llmMessages, [
-                'temperature' => 0.6,
-            ]);
+            // 1. Save the user message
+            $this->supabase->saveChatMessage($userId, $agent, 'user', $content);
 
-            $assistantContent = $data['choices'][0]['message']['content'] ?? 'Erro: sem resposta do modelo.';
+            // 2. Load recent history for context (last 20 messages)
+            $history = $this->supabase->getChatMessages($userId, $agent, 20);
 
-            // 5. Loga os tokens gastos
-            if (isset($data['usage'])) {
-                $this->supabase->logTokenUsage(
-                    'chat',
-                    $agentName,
-                    $data['usage']['prompt_tokens'] ?? 0,
-                    $data['usage']['completion_tokens'] ?? 0
-                );
+            // 3. Build OpenRouter messages array
+            $systemPrompt = self::AGENT_PROMPTS[$agent] ?? self::AGENT_PROMPTS['orchestrator'];
+            $messages = [
+                ['role' => 'system', 'content' => $systemPrompt],
+            ];
+
+            foreach ($history as $msg) {
+                $messages[] = [
+                    'role' => $msg['role'],
+                    'content' => $msg['content'],
+                ];
             }
+
+            // 4. Call OpenRouter LLM
+            $response = $this->llm->chat($messages, ['temperature' => 0.7]);
+            $assistantContent = $response['choices'][0]['message']['content'] ?? 'Desculpe, não consegui processar a resposta.';
+
+            // 5. Save assistant response
+            $this->supabase->saveChatMessage($userId, $agent, 'assistant', $assistantContent);
+
+            JsonResponse::send([
+                'content' => $assistantContent,
+                'message' => [
+                    'role' => 'assistant',
+                    'content' => $assistantContent,
+                    'created_at' => date('c'),
+                ],
+            ]);
         } catch (\Exception $e) {
-            $assistantContent = $agentConfig['name'] . ' offline no momento. Tente novamente em instantes. (Erro: ' . $e->getMessage() . ')';
+            JsonResponse::send(['error' => 'Erro ao processar mensagem: ' . $e->getMessage()], 500);
         }
-
-        // 6. Persiste a resposta do assistente
-        $saved = $this->supabase->createChatMessage([
-            'user_id' => $userId,
-            'role' => 'assistant',
-            'content' => $assistantContent,
-            'agent_name' => $agentName,
-        ]);
-
-        JsonResponse::send([
-            'message' => $saved,
-            'content' => $assistantContent,
-        ], 201);
     }
 
     /**
-     * DELETE /chat/messages?agent=orchestrator — Limpa o histórico do chat de um agente
+     * DELETE /chat/messages?agent=orchestrator
      */
     public function clearMessages(): void
     {
         $userId = $this->getAuthenticatedUserId();
-        $agentName = $_GET['agent'] ?? null;
+        $agent = $_GET['agent'] ?? 'orchestrator';
 
-        $this->supabase->deleteChatMessages($userId, $agentName);
-
-        JsonResponse::send(['success' => true]);
+        try {
+            $this->supabase->clearChatMessages($userId, $agent);
+            JsonResponse::send(['success' => true]);
+        } catch (\Exception $e) {
+            JsonResponse::send(['error' => $e->getMessage()], 500);
+        }
     }
 
     private function getAuthenticatedUserId(): string
@@ -158,13 +122,14 @@ class ChatController
             if (count($parts) === 3) {
                 $payloadEncoded = str_replace(['-', '_'], ['+', '/'], $parts[1]);
                 $payload = json_decode(base64_decode($payloadEncoded), true);
+
                 if (isset($payload['sub'])) {
                     return $payload['sub'];
                 }
             }
         }
 
-        JsonResponse::send(['error' => 'Não autorizado.'], 401);
+        JsonResponse::send(['error' => 'Não autorizado. Token inválido ou ausente.'], 401);
         exit;
     }
 }

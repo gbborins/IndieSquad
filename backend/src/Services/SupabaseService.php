@@ -140,40 +140,43 @@ class SupabaseService
         }
     }
 
-    /**
-     * Lista mensagens do chat de um usuário (ordenadas por created_at)
-     */
-    public function listChatMessages(string $userId, int $limit = 50, ?string $agentName = null): array
+    // ── Chat Messages ───────────────────────────────────────
+
+    public function getChatMessages(string $userId, string $agent, int $limit = 50): array
     {
-        $query = "chat_messages?user_id=eq.$userId&select=*&order=created_at.asc&limit=$limit";
-        if ($agentName) {
-            $query .= "&agent_name=eq.$agentName";
+        try {
+            $response = $this->client->get(
+                "chat_messages?user_id=eq.$userId&agent=eq.$agent&select=*&order=created_at.asc&limit=$limit"
+            );
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\Exception $e) {
+            error_log("getChatMessages failed: " . $e->getMessage());
+            return [];
         }
-        $response = $this->client->get($query);
-        return json_decode($response->getBody()->getContents(), true);
     }
 
-    /**
-     * Insere uma nova mensagem no chat
-     */
-    public function createChatMessage(array $data): array
+    public function saveChatMessage(string $userId, string $agent, string $role, string $content): void
     {
-        $response = $this->client->post('chat_messages', [
-            'json' => [$data]
-        ]);
-        $rows = json_decode($response->getBody()->getContents(), true);
-        return $rows[0] ?? [];
+        try {
+            $this->client->post('chat_messages', [
+                'json' => [[
+                    'user_id' => $userId,
+                    'agent' => $agent,
+                    'role' => $role,
+                    'content' => $content,
+                ]]
+            ]);
+        } catch (\Exception $e) {
+            error_log("saveChatMessage failed: " . $e->getMessage());
+        }
     }
 
-    /**
-     * Deleta mensagens do chat de um usuário (opcionalmente filtrado por agente)
-     */
-    public function deleteChatMessages(string $userId, ?string $agentName = null): void
+    public function clearChatMessages(string $userId, string $agent): void
     {
-        $query = "chat_messages?user_id=eq.$userId";
-        if ($agentName) {
-            $query .= "&agent_name=eq.$agentName";
+        try {
+            $this->client->delete("chat_messages?user_id=eq.$userId&agent=eq.$agent");
+        } catch (\Exception $e) {
+            error_log("clearChatMessages failed: " . $e->getMessage());
         }
-        $this->client->delete($query);
     }
 }

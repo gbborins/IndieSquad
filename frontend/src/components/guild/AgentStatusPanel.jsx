@@ -17,8 +17,8 @@ function PixelIcon({ name, size = 20 }) {
 const AGENT_META = {
   orchestrator: { name: 'Maestro',  role: 'Orchestrator', icon: 'gamepad', color: '#ff5555', desc: 'Cria o plano tático da missão' },
   planner:      { name: 'Stratego', role: 'Planner',      icon: 'clipboard', color: '#55aaff', desc: 'Define estratégia e SEO' },
-  blog_writer:  { name: 'Scribe',   role: 'Writer',       icon: 'edit', color: '#55ff55', desc: 'Redige textos finais' },
-  designer:     { name: 'Pixel',    role: 'Designer',     icon: 'paint-bucket', color: '#ffaa55', desc: 'Gera assets visuais' },
+  blog_writer:  { name: 'Scribe',   role: 'Writer',       icon: 'feather', color: '#55ff55', desc: 'Redige textos finais' },
+  designer:     { name: 'Pixel',    role: 'Designer',     icon: 'image', color: '#ffaa55', desc: 'Gera assets visuais' },
 };
 
 const STATUS_CONFIG = {
@@ -87,7 +87,7 @@ export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [],
       {/* Activity Timeline */}
       <div className="guild-timeline">
         <div className="panel-header" style={{ marginTop: 8 }}>
-          <PixelIcon name="timeline" size={16} />
+          <PixelIcon name="clock" size={16} />
           <span>Atividade Recente</span>
         </div>
 

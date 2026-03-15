@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { supabase } from '../lib/supabase';
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -18,8 +19,8 @@ function PixelIcon({ name, size = 16 }) {
 const agentIcons = {
   orchestrator: "gamepad",
   planner: "chart",
-  blog_writer: "edit",
-  designer: "paint-bucket",
+  blog_writer: "feather",
+  designer: "image",
 };
 
 export default function CostTracker() {
@@ -28,7 +29,13 @@ export default function CostTracker() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch(`${API_BASE_URL}/stats/tokens`);
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const headers = {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        };
+        const res = await fetch(`${API_BASE_URL}/stats/tokens`, { headers });
         if (res.ok) {
           const data = await res.json();
           setStats(data);
@@ -48,7 +55,7 @@ export default function CostTracker() {
   return (
     <div className="cost-tracker">
       <h3>
-        <PixelIcon name="coin" size={20} /> TOKEN TRACKER
+        <PixelIcon name="wallet" size={20} /> TOKEN TRACKER
       </h3>
 
       <div className="cost-grid">
@@ -72,7 +79,7 @@ export default function CostTracker() {
         </div>
         <div className="cost-stat cost">
           <span className="cost-label">
-            <PixelIcon name="coin" size={14} /> Custo Est.
+            <PixelIcon name="wallet" size={14} /> Custo Est.
           </span>
           <span className="cost-value cost-usd">
             ${stats.estimated_cost_usd?.toFixed(4) || "0.0000"}
@@ -86,7 +93,7 @@ export default function CostTracker() {
           {Object.entries(stats.by_agent).map(([agent, data]) => (
             <div key={agent} className="cost-agent-row">
               <span className="cost-agent-name">
-                <PixelIcon name={agentIcons[agent] || "coin"} size={14} />{" "}
+                <PixelIcon name={agentIcons[agent] || "wallet"} size={14} />{" "}
                 {agent}
               </span>
               <span className="cost-agent-tokens">

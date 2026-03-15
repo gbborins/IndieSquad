@@ -7,8 +7,8 @@ const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 const AGENT_META = {
   orchestrator: { name: 'Maestro', icon: 'gamepad', color: '#ff5555' },
   planner: { name: 'Stratego', icon: 'clipboard', color: '#55aaff' },
-  blog_writer: { name: 'Scribe', icon: 'edit', color: '#55ff55' },
-  designer: { name: 'Pixel', icon: 'paint-bucket', color: '#ffaa55' },
+  blog_writer: { name: 'Scribe', icon: 'feather', color: '#55ff55' },
+  designer: { name: 'Pixel', icon: 'image', color: '#ffaa55' },
 };
 
 function PixelIcon({ name, size = 18 }) {

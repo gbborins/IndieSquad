@@ -13,11 +13,40 @@ function PixelIcon({ name, size = 16 }) {
 }
 
 const columnIcons = {
-  "A Fazer": "list",
+  "A Fazer": "library",
   "Em Progresso": "loader",
   "Em Revisão (Humano)": "human-handsup",
   "Concluído": "check",
 };
+
+function generateImageUrl(prompt) {
+  if (!prompt) return null;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true`;
+}
+
+function DeliverableItem({ deliv, idx }) {
+  const isObject = typeof deliv === 'object' && deliv !== null;
+  const hasImage = isObject && deliv.image_prompt;
+  const title = isObject ? (deliv.type || deliv.title || `Item ${idx + 1}`) : null;
+  const desc = isObject ? (deliv.description || deliv.content || '') : (typeof deliv === 'string' ? deliv : JSON.stringify(deliv));
+
+  return (
+    <li>
+      {title && <strong>{title}:</strong>} {desc}
+      {hasImage && (
+        <div>
+          <img
+            src={generateImageUrl(deliv.image_prompt)}
+            alt={deliv.description || deliv.image_prompt}
+            loading="lazy"
+            className="task-deliverable-image"
+          />
+          <p className="task-image-prompt">🎨 {deliv.image_prompt}</p>
+        </div>
+      )}
+    </li>
+  );
+}
 
 export default function TaskStatusList({ tasks }) {
   if (!tasks || tasks.length === 0) return <p className="empty-state">Nenhuma tarefa encontrada no servidor.</p>;
@@ -34,7 +63,7 @@ export default function TaskStatusList({ tasks }) {
       {Object.entries(columns).map(([colName, colTasks]) => (
         <div key={colName} className="kanban-col">
           <h3 className="kanban-title">
-            <PixelIcon name={columnIcons[colName] || "coin"} size={18} /> {colName}
+            <PixelIcon name={columnIcons[colName] || "wallet"} size={18} /> {colName}
           </h3>
           <div className="kanban-items">
             {colTasks.length === 0 ? (
@@ -44,16 +73,14 @@ export default function TaskStatusList({ tasks }) {
                 <div key={t.id} className="kanban-card">
                   <h4><PixelIcon name="note" size={14} /> {t.title}</h4>
                   <span className={`status-badge ${t.status}`}>{t.status}</span>
-                  
+
                   {t.status === 'done' && t.agent_response && t.agent_response.deliverables && (
                     <div className="task-deliverables">
                       <h5><PixelIcon name="folder" size={12} /> Entregáveis</h5>
                       {Array.isArray(t.agent_response.deliverables) ? (
                         <ul>
                           {t.agent_response.deliverables.map((deliv, idx) => (
-                            <li key={idx}>
-                              <strong>{deliv.type || 'Item'}:</strong> {deliv.description || typeof deliv === 'string' ? deliv : JSON.stringify(deliv)}
-                            </li>
+                            <DeliverableItem key={idx} deliv={deliv} idx={idx} />
                           ))}
                         </ul>
                       ) : (

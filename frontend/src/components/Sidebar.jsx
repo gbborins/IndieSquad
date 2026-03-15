@@ -19,10 +19,10 @@ function PixelIcon({ name, size = 24 }) {
 
 const menuItems = [
   { label: "Guilda", icon: "monitor", path: "/guilda" },
-  { label: "Quests", icon: "list", path: "/quests" },
+  { label: "Quests", icon: "library", path: "/quests" },
   { label: "NPCs", icon: "robot", path: "/npcs" },
-  { label: "Memoria", icon: "brain", path: "/memoria" },
-  { label: "Uso", icon: "coin", path: "/uso" },
+  { label: "Memoria", icon: "server", path: "/memoria" },
+  { label: "Uso", icon: "wallet", path: "/uso" },
 ];
 
 export default function Sidebar() {

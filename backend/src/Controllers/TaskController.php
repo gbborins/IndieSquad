@@ -133,6 +133,7 @@ class TaskController
 
     public function getTokenStats(): void
     {
+        $this->getAuthenticatedUserId();
         $stats = $this->supabase->getTokenStats();
         JsonResponse::send($stats);
     }

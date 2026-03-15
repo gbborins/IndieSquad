@@ -17,16 +17,16 @@ function PixelIcon({ name, size = 24 }) {
 const agentIcons = {
   orchestrator: "gamepad",
   planner: "chart",
-  blog_writer: "edit",
-  designer: "paint-bucket",
+  blog_writer: "feather",
+  designer: "image",
 };
 
 export default function AgentRoster({ tasks, activeAgents, isSubmitting, isApproving }) {
   const squadState = {
     orchestrator: { name: "Orquestrador", role: "Mission Control", status: "Idle", color: "var(--secondary)", icon: "gamepad" },
     planner: { name: "Planejador", role: "Estratégia", status: "Idle", color: "#A855F7", icon: "chart" },
-    blog_writer: { name: "Redator", role: "Blog Writer", status: "Idle", color: "var(--primary)", icon: "edit" },
-    designer: { name: "Designer", role: "Visual Assets", status: "Idle", color: "#F59E0B", icon: "paint-bucket" },
+    blog_writer: { name: "Redator", role: "Blog Writer", status: "Idle", color: "var(--primary)", icon: "feather" },
+    designer: { name: "Designer", role: "Visual Assets", status: "Idle", color: "#F59E0B", icon: "image" },
   };
 
   const isWaitingApproval = tasks.some(t => t.status === "in_review");
@@ -55,14 +55,14 @@ export default function AgentRoster({ tasks, activeAgents, isSubmitting, isAppro
       <h3><PixelIcon name="users" size={20} /> SQUAD ATIVO</h3>
       <div className="roster-grid">
         {Object.entries(squadState).map(([id, agent]) => (
-          <div key={id} className={`agent-card ${agent.status !== 'Idle' && agent.status !== 'Standby' ? 'active' : ''}`} style={{borderColor: agent.color}}>
-            <div className="agent-avatar" style={{backgroundColor: agent.color}}>
+          <div key={id} className={`agent-card ${agent.status !== 'Idle' && agent.status !== 'Standby' ? 'active' : ''}`} style={{ borderColor: agent.color }}>
+            <div className="agent-avatar" style={{ backgroundColor: agent.color }}>
               <PixelIcon name={agent.icon} size={32} />
             </div>
             <div className="agent-info">
               <span className="agent-role">{agent.role}</span>
               <span className="agent-name">{agent.name}</span>
-              <span className="agent-status" style={{color: agent.color}}>
+              <span className="agent-status" style={{ color: agent.color }}>
                 <PixelIcon name="chevron-right" size={12} /> {agent.status}
               </span>
             </div>
