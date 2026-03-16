@@ -6,11 +6,13 @@ import { fetchChatMessages } from '../api/chat';
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
 const STATIC_SECTIONS = [
-  { title: 'Instruções do Agente', key: 'agent_instructions', icon: 'scroll',
+  {
+    title: 'Instruções do Agente', key: 'agent_instructions', icon: 'a-arrow-up',
     desc: 'Regras e comportamento definidos para cada agente da guilda.',
     items: Object.values(AGENTS).map(a => ({ agent: a.name, content: a.desc })),
   },
-  { title: 'Contexto do Projeto', key: 'project_context', icon: 'booklet',
+  {
+    title: 'Contexto do Projeto', key: 'project_context', icon: 'book-open-sharp',
     desc: 'Informações globais que os agentes usam para manter coerência.',
     items: [
       { agent: 'Sistema', content: 'Tema: Indie Game Studio · Stack: React + PHP + Supabase · Estilo: Pixel Art Dark Theme' },
@@ -90,12 +92,14 @@ export default function MemoriaPage() {
   }));
 
   const dynamicSections = [
-    { title: 'Histórico de Tasks', key: 'task_history', icon: 'archive',
+    {
+      title: 'Histórico de Tasks', key: 'task_history', icon: 'archive',
       desc: 'Registro das tarefas anteriores e seus resultados.',
       items: taskItems,
       loading: loadingTasks,
     },
-    { title: 'Histórico de Conversas', key: 'chat_history', icon: 'message',
+    {
+      title: 'Histórico de Conversas', key: 'chat_history', icon: 'message',
       desc: 'Últimas mensagens trocadas com os agentes da guilda.',
       items: chatItems,
       loading: loadingChat,
