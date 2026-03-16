@@ -21,7 +21,7 @@ export const AGENTS = {
     avatar: '❤️',
     desc: 'Orquestra a equipe e cria planos táticos baseados no briefing do usuário.',
     skills: ['Planejamento', 'Distribuição de tarefas', 'Revisão de qualidade'],
-    model: 'DeepSeek R1',
+    model: 'GPT-4o Mini',
   },
   planner: {
     id: 'planner',
@@ -32,7 +32,7 @@ export const AGENTS = {
     avatar: '🐝',
     desc: 'Define estratégias de SEO, posicionamento de conteúdo e análise de mercado.',
     skills: ['SEO', 'Análise competitiva', 'Estratégia de conteúdo'],
-    model: 'DeepSeek R1',
+    model: 'GPT-4o Mini',
   },
   blog_writer: {
     id: 'blog_writer',
@@ -43,7 +43,7 @@ export const AGENTS = {
     avatar: '🟫',
     desc: 'Redige textos finais como blog posts, copies e documentação técnica.',
     skills: ['Redação', 'Copywriting', 'Documentação'],
-    model: 'DeepSeek V3',
+    model: 'GPT-4o Mini',
   },
   designer: {
     id: 'designer',
@@ -54,7 +54,7 @@ export const AGENTS = {
     avatar: '🐻',
     desc: 'Gera prompts de imagem e conceitos visuais para assets do projeto.',
     skills: ['Design Visual', 'Concept Art', 'Prompt Engineering'],
-    model: 'DeepSeek V3',
+    model: 'GPT-4o Mini',
   },
 };
 
