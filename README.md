@@ -68,10 +68,10 @@ Os agentes não apenas executam tarefas; eles aprendem. O sistema armazena logs 
 
 ## 👥 Membros da Equipe
 
-- **Gabriel Borghi Bortolin**  - [https://github.com/gbborins|https://www.linkedin.com/gabriel-borghi-bortolin-27b77b337/]
-- **Wendel Santos Silva** - [https://www.linkedin.com/in/wendel-santos-silv|https://github.com/wendeljj]
-- **Gabriel Sacilottoo** - [https://www.linkedin.com/in/gabriel-sacilotto-819343365|https://github.com/gabriel-sacilottoo]
-- **Luiz Carlos Fernandes Neto**  - [https://www.linkedin.com/in/luiz-carlos-fernandes-neto-740b212a6|https://github.com/gulosospizza2]
+- **Gabriel Borghi Bortolin**  - [https://github.com/gbborins, https://www.linkedin.comgabriel-borghi-bortolin-27b77b337/]
+- **Wendel Santos Silva** - [https://www.linkedin.com/in/wendel-santos-silva/, https://github.com/wendeljj]
+- **Gabriel Sacilottoo** - [https://www.linkedin.com/in/gabriel-sacilotto-819343365, https://github.com/gabriel-sacilottoo]
+- **Luiz Carlos Fernandes Neto**  - [https://www.linkedin.com/in/luiz-carlos-fernandes-neto-740b212a6, https://github.com/gulosospizza2]
 ---
 
 ## ⚡ Instruções de Configuração e Uso (Setup)
