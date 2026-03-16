@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import iconIndieSquad from "../assets/IconIndieSquad.png";
+import iconIndieSquad from "../assets/iconIndieSquad.svg";
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
