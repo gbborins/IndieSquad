@@ -2586,6 +2586,36 @@
   text-align: right;
 }
 
+/* Chat Bubble Images */
+.chat-bubble-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.chat-image-card {
+  display: block;
+  max-width: 280px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.chat-image-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.chat-image-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: rgba(255,255,255,0.03);
+  min-height: 80px;
+}
+
 .chat-typing-indicator {
   display: flex; gap: 4px; padding: 8px;
 }

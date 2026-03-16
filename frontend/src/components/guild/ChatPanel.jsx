@@ -35,6 +35,16 @@ function TypingIndicator() {
 }
 
 function ChatBubble({ msg, isUser, agentMeta }) {
+  // Parse [IMG:url] markers from content
+  const imgRegex = /\[IMG:(https?:\/\/[^\]]+)\]/g;
+  const images = [];
+  let match;
+  while ((match = imgRegex.exec(msg.content)) !== null) {
+    images.push(match[1]);
+  }
+  // Clean text content (remove [IMG:...] markers)
+  const textContent = msg.content.replace(imgRegex, '').trim();
+
   return (
     <motion.div
       className={`chat-bubble ${isUser ? 'chat-bubble-user' : 'chat-bubble-assistant'}`}
@@ -53,7 +63,21 @@ function ChatBubble({ msg, isUser, agentMeta }) {
             {agentMeta?.name || 'Agente'}
           </span>
         )}
-        <p className="chat-bubble-text">{msg.content}</p>
+        {textContent && <p className="chat-bubble-text">{textContent}</p>}
+        {images.length > 0 && (
+          <div className="chat-bubble-images">
+            {images.map((url, idx) => (
+              <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="chat-image-card">
+                <img
+                  src={url}
+                  alt="Imagem gerada pelo Pixel"
+                  loading="lazy"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              </a>
+            ))}
+          </div>
+        )}
         <span className="chat-bubble-time">
           {msg.created_at
             ? new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })

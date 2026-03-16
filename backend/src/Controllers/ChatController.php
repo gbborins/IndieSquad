@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Services\SupabaseService;
 use App\Services\OpenRouterService;
+use App\Services\ImageGenerationService;
 use App\Utils\JsonResponse;
 
 class ChatController
@@ -15,7 +16,7 @@ class ChatController
         'orchestrator' => 'Você é o Maestro, o orquestrador de um estúdio indie. Você lidera a equipe e cria planos táticos. Quando o usuário pedir algo que outro agente deveria fazer, diga "Vou acionar o Stratego" ou "Vou acionar o Scribe" ou "Vou acionar o Pixel" conforme necessário. Seja amigável e direto.',
         'planner' => 'Você é o Stratego, o planejador estratégico. Você define estratégias de SEO, posicionamento de conteúdo e análise de mercado. Seja analítico e preciso.',
         'blog_writer' => 'Você é o Scribe, o redator do estúdio. Você escreve blog posts, copies, documentação e textos criativos. Seja criativo e fluente.',
-        'designer' => 'Você é o Pixel, o designer do estúdio. Você gera conceitos visuais, prompts de imagem e direção de arte. Seja visual e criativo.',
+        'designer' => "Você é o Pixel, o designer visual do estúdio indie. Quando o usuário pedir para criar/gerar/desenhar uma imagem, responda EXCLUSIVAMENTE com JSON válido neste formato:\n{\"message\": \"sua resposta amigável aqui\", \"image_prompt\": \"prompt detalhado em inglês para gerar a imagem\"}\n\nO image_prompt deve ser detalhado, em inglês, descrevendo estilo visual, cores, composição.\nSe o usuário NÃO está pedindo uma imagem (só conversando), responda normalmente em texto puro SEM JSON.\nSeja criativo e amigável.",
     ];
 
     public function __construct()
@@ -70,9 +71,11 @@ class ChatController
             ];
 
             foreach ($history as $msg) {
+                // Strip [IMG:...] markers from history so LLM doesn't see them
+                $msgContent = preg_replace('/\[IMG:[^\]]+\]/', '', $msg['content']);
                 $messages[] = [
                     'role' => $msg['role'],
-                    'content' => $msg['content'],
+                    'content' => trim($msgContent),
                 ];
             }
 
@@ -80,20 +83,73 @@ class ChatController
             $response = $this->llm->chat($messages, ['temperature' => 0.7]);
             $assistantContent = $response['choices'][0]['message']['content'] ?? 'Desculpe, não consegui processar a resposta.';
 
-            // 5. Save assistant response
-            $this->supabase->saveChatMessage($userId, $agent, 'assistant', $assistantContent);
+            // 5. For designer: check if response contains image_prompt JSON
+            $imageUrl = null;
+            $displayContent = $assistantContent;
+
+            if ($agent === 'designer') {
+                $parsed = $this->tryParseImageResponse($assistantContent);
+
+                if ($parsed && !empty($parsed['image_prompt'])) {
+                    $displayContent = $parsed['message'] ?? '🎨 Aqui está a imagem que criei!';
+
+                    try {
+                        // Generate the image
+                        $imageService = new ImageGenerationService();
+                        $imageData = $imageService->generate($parsed['image_prompt']);
+
+                        // Upload to Supabase Storage
+                        $filename = 'pixel_' . $userId . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.png';
+                        $imageUrl = $this->supabase->uploadToStorage(
+                            'generated-images',
+                            $filename,
+                            $imageData,
+                            'image/png'
+                        );
+
+                        // Append image marker to saved content
+                        $displayContent .= "\n[IMG:{$imageUrl}]";
+                    } catch (\Exception $imgErr) {
+                        error_log("Image generation failed: " . $imgErr->getMessage());
+                        $displayContent .= "\n\n⚠️ Não consegui gerar a imagem agora, mas aqui está o prompt: " . $parsed['image_prompt'];
+                    }
+                }
+            }
+
+            // 6. Save assistant response
+            $this->supabase->saveChatMessage($userId, $agent, 'assistant', $displayContent);
 
             JsonResponse::send([
-                'content' => $assistantContent,
+                'content' => $displayContent,
+                'image_url' => $imageUrl,
                 'message' => [
                     'role' => 'assistant',
-                    'content' => $assistantContent,
+                    'content' => $displayContent,
                     'created_at' => date('c'),
                 ],
             ]);
         } catch (\Exception $e) {
             JsonResponse::send(['error' => 'Erro ao processar mensagem: ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Try to parse the LLM response as JSON with image_prompt.
+     */
+    private function tryParseImageResponse(string $content): ?array
+    {
+        // Clean markdown code blocks if present
+        $cleaned = preg_replace('/^```json\s*/m', '', $content);
+        $cleaned = preg_replace('/```$/m', '', $cleaned);
+        $cleaned = trim($cleaned);
+
+        $decoded = json_decode($cleaned, true);
+
+        if (is_array($decoded) && isset($decoded['image_prompt'])) {
+            return $decoded;
+        }
+
+        return null;
     }
 
     /**

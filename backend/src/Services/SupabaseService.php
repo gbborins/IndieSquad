@@ -179,4 +179,41 @@ class SupabaseService
             error_log("clearChatMessages failed: " . $e->getMessage());
         }
     }
+
+    // ── Storage ─────────────────────────────────────────────
+
+    /**
+     * Upload a file to Supabase Storage.
+     * Returns the public URL of the uploaded file.
+     */
+    public function uploadToStorage(string $bucket, string $path, string $fileData, string $contentType = 'image/png'): string
+    {
+        $key = Env::get('SUPABASE_SERVICE_ROLE_KEY');
+        $url = $this->baseUrl . "/storage/v1/object/$bucket/$path";
+
+        $storageClient = new \GuzzleHttp\Client(['timeout' => 30]);
+
+        $response = $storageClient->request('POST', $url, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $key,
+                'Content-Type' => $contentType,
+                'x-upsert' => 'true',
+            ],
+            'body' => $fileData,
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new \Exception('Supabase Storage upload failed: ' . $response->getStatusCode());
+        }
+
+        return $this->getPublicUrl($bucket, $path);
+    }
+
+    /**
+     * Get a public URL for a file in Supabase Storage.
+     */
+    public function getPublicUrl(string $bucket, string $path): string
+    {
+        return $this->baseUrl . "/storage/v1/object/public/$bucket/$path";
+    }
 }
