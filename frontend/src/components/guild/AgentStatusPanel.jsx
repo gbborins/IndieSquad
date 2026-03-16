@@ -77,36 +77,6 @@ export default function AgentStatusPanel({ agentStatuses = {}, workflowLog = [],
           );
         })}
       </div>
-
-      {/* Activity Timeline */}
-      <div className="guild-timeline">
-        <div className="panel-header" style={{ marginTop: 8 }}>
-          <PixelIcon name="clock" size={16} />
-          <span>Atividade Recente</span>
-        </div>
-
-        {workflowLog.length === 0 ? (
-          <p className="timeline-empty">Nenhuma atividade recente.</p>
-        ) : (
-          <div className="timeline-list">
-            {workflowLog.slice(-6).reverse().map((entry, idx) => {
-              const meta = AGENTS[entry.agent];
-              return (
-                <div key={idx} className="timeline-entry">
-                  <div className="timeline-dot" style={{ background: meta?.color || '#888' }} />
-                  <div className="timeline-content">
-                    <span className="timeline-agent">{meta?.name || entry.agent}</span>
-                    <span className="timeline-action">{entry.action || entry.summary || 'Executou ação'}</span>
-                    <span className="timeline-time">
-                      {entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
