@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import iconIndieSquad from "../assets/IconIndieSquad.png";
 
 const ICON_BASE = "https://unpkg.com/pixelarticons@latest/svg";
 
@@ -75,7 +76,11 @@ export default function Sidebar() {
       >
         {/* Logo */}
         <div className="sidebar-logo" onClick={() => handleNav('/')} style={{ cursor: 'pointer' }}>
-          <div className="sidebar-logo-icon" />
+          <img
+            className="sidebar-logo-icon"
+            src={iconIndieSquad}
+            alt="Indie Squad"
+          />
           <AnimatePresence>
             {expanded && (
               <motion.span
