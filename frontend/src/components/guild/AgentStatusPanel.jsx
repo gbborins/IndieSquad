@@ -16,16 +16,16 @@ function PixelIcon({ name, size = 20 }) {
 }
 
 const STATUS_CONFIG = {
-  idle:        { label: 'Standby',     dotClass: 'dot-idle',    icon: 'moon' },
-  typing:      { label: 'Trabalhando', dotClass: 'dot-typing',  icon: 'loader' },
-  reading:     { label: 'Analisando',  dotClass: 'dot-reading', icon: 'search' },
-  waiting:     { label: 'Aguardando',  dotClass: 'dot-waiting', icon: 'alert' },
+  idle: { label: 'Standby', dotClass: 'dot-idle', icon: 'moon' },
+  typing: { label: 'Trabalhando', dotClass: 'dot-typing', icon: 'loader' },
+  reading: { label: 'Analisando', dotClass: 'dot-reading', icon: 'search' },
+  waiting: { label: 'Aguardando', dotClass: 'dot-waiting', icon: 'alert' },
 };
 
 function getStatusFromTask(status) {
   if (status === 'in_progress') return 'typing';
-  if (status === 'in_review')   return 'waiting';
-  if (status === 'reading')     return 'reading';
+  if (status === 'in_review') return 'waiting';
+  if (status === 'reading') return 'reading';
   return 'idle';
 }
 

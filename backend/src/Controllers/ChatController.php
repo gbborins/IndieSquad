@@ -83,48 +83,54 @@ class ChatController
             $response = $this->llm->chat($messages, ['temperature' => 0.7]);
             $assistantContent = $response['choices'][0]['message']['content'] ?? 'Desculpe, não consegui processar a resposta.';
 
-            // 5. For designer: check if response contains image_prompt JSON
+            // 5. For designer: detect image requests and generate
             $imageUrl = null;
             $displayContent = $assistantContent;
 
             if ($agent === 'designer') {
+                // First, try parsing JSON from LLM response
                 $parsed = $this->tryParseImageResponse($assistantContent);
+                $imagePrompt = null;
 
                 if ($parsed && !empty($parsed['image_prompt'])) {
+                    // LLM returned JSON with image_prompt
+                    $imagePrompt = $parsed['image_prompt'];
                     $displayContent = $parsed['message'] ?? '🎨 Aqui está a imagem que criei!';
+                } elseif ($this->isImageRequest($content)) {
+                    // User asked for an image but LLM responded with plain text
+                    // Make a dedicated call to extract/generate an image prompt
+                    $imagePrompt = $this->generateImagePrompt($content, $assistantContent);
+                    // Keep original LLM response as the display text, clean it up
+                    $displayContent = preg_replace('/```json.*?```/s', '', $assistantContent);
+                    $displayContent = trim($displayContent) ?: '🎨 Aqui está a imagem que criei!';
+                }
 
+                if ($imagePrompt) {
+                    // Generate image using Pollinations URL directly (fastest, most reliable)
+                    $imageUrl = 'https://image.pollinations.ai/prompt/'
+                        . urlencode($imagePrompt)
+                        . '?width=512&height=512&nologo=true&seed=' . time();
+
+                    // Try uploading to Supabase Storage in background
                     try {
-                        // Generate the image
                         $imageService = new ImageGenerationService();
-                        $imageData = $imageService->generate($parsed['image_prompt']);
+                        $imageData = $imageService->generate($imagePrompt);
 
-                        // Try to upload to Supabase Storage
-                        try {
-                            $filename = 'pixel_' . $userId . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.png';
-                            $imageUrl = $this->supabase->uploadToStorage(
-                                'generated-images',
-                                $filename,
-                                $imageData,
-                                'image/png'
-                            );
-                        } catch (\Exception $uploadErr) {
-                            // Fallback: use Pollinations URL directly
-                            error_log("Supabase upload failed, using Pollinations URL: " . $uploadErr->getMessage());
-                            $imageUrl = 'https://image.pollinations.ai/prompt/'
-                                . urlencode($parsed['image_prompt'])
-                                . '?width=512&height=512&nologo=true';
-                        }
-
-                        // Append image marker to saved content
-                        $displayContent .= "\n[IMG:{$imageUrl}]";
-                    } catch (\Exception $imgErr) {
-                        // Even if generation fails entirely, use Pollinations URL as last resort
-                        error_log("Image generation failed: " . $imgErr->getMessage());
-                        $imageUrl = 'https://image.pollinations.ai/prompt/'
-                            . urlencode($parsed['image_prompt'])
-                            . '?width=512&height=512&nologo=true';
-                        $displayContent .= "\n[IMG:{$imageUrl}]";
+                        $filename = 'pixel_' . $userId . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.png';
+                        $storedUrl = $this->supabase->uploadToStorage(
+                            'generated-images',
+                            $filename,
+                            $imageData,
+                            'image/png'
+                        );
+                        // Use Supabase URL if upload succeeded
+                        $imageUrl = $storedUrl;
+                    } catch (\Exception $e) {
+                        // Keep Pollinations URL as fallback — image will still show
+                        error_log("Storage upload failed, using Pollinations URL: " . $e->getMessage());
                     }
+
+                    $displayContent .= "\n[IMG:{$imageUrl}]";
                 }
             }
 
@@ -162,6 +168,58 @@ class ChatController
         }
 
         return null;
+    }
+
+    /**
+     * Detect if the user is requesting an image based on keywords.
+     */
+    private function isImageRequest(string $userMessage): bool
+    {
+        $keywords = [
+            'cri', 'gera', 'gere', 'faz', 'faça', 'desenh', 'mostr', 'imagem',
+            'image', 'foto', 'arte', 'visual', 'ilustra', 'concept', 'banner',
+            'thumbnail', 'asset', 'pixel art', 'draw', 'create', 'generate',
+            'design', 'render', 'paint', 'sketch',
+        ];
+
+        $lower = mb_strtolower($userMessage, 'UTF-8');
+
+        foreach ($keywords as $kw) {
+            if (mb_strpos($lower, $kw) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Make a dedicated LLM call to generate an image prompt from a user request.
+     * This is a separate, focused call that reliably returns just the prompt.
+     */
+    private function generateImagePrompt(string $userRequest, string $contextResponse): string
+    {
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => 'You are a prompt engineer. Your ONLY job is to convert user requests into detailed image generation prompts in English. Reply with ONLY the image prompt text, nothing else. No explanations, no greetings, no quotes. Just the raw prompt. Be detailed about style, colors, composition, lighting.'
+            ],
+            [
+                'role' => 'user',
+                'content' => "The user asked: \"$userRequest\"\n\nThe designer's description: \"$contextResponse\"\n\nGenerate a detailed image prompt in English:"
+            ],
+        ];
+
+        try {
+            $response = $this->llm->chat($messages, ['temperature' => 0.5, 'max_tokens' => 200]);
+            $prompt = trim($response['choices'][0]['message']['content'] ?? '');
+            // Clean any quotes the LLM might wrap it in
+            $prompt = trim($prompt, '"\'');
+            return $prompt ?: $userRequest;
+        } catch (\Exception $e) {
+            // Fallback: use the user's original request as the prompt
+            return $userRequest;
+        }
     }
 
     /**

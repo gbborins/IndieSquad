@@ -301,7 +301,7 @@ export default function GuildChat({ onTaskCreated }) {
                   ))}
                 </div>
                 <button className="dc-header-btn" onClick={handleClear} title="Limpar histórico">
-                  <PixelIcon name="trash" size={14} />
+                  <PixelIcon name="power-off" size={14} />
                 </button>
                 <button className="dc-header-btn" onClick={() => setIsOpen(false)} title="Minimizar">
                   <PixelIcon name="chevron-down" size={16} />

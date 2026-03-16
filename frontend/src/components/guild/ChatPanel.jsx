@@ -283,7 +283,7 @@ export default function ChatPanel({ activeAgent = 'orchestrator', onUnreadChange
                   }
                 }}
               >
-                <PixelIcon name="trash" size={14} />
+                <PixelIcon name="power-off" size={14} />
               </button>
             </div>
 
