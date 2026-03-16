@@ -42,7 +42,8 @@
 .sidebar-logo {
   display: flex;
   align-items: center;
-  height: 80px;
+  justify-content: center;
+  height: 68px;
   width: 100%;
   padding: 0 20px;
   gap: 16px;
