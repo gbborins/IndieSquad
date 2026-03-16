@@ -2523,7 +2523,8 @@
 .guild-chat-container {
   position: fixed;
   bottom: 0;
-  left: 68px;
+  left: var(--sidebar-current-width, 68px);
+  transition: left 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   right: 0;
   z-index: 100;
   display: flex;
