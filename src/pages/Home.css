@@ -1,0 +1,455 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
+@media (max-width: 1440px){
+    html{
+   /*  font-size: 70%; */
+    }
+
+}
+
+main{
+    background-color: #050505;
+    display: flex;
+    min-height: 100vh;
+}
+
+/*Projeto do lado esquerdo*/
+.hero{
+    position: relative;
+    flex: 0 0 58.33%;
+
+    background:
+
+    linear-gradient(rgba(54, 36, 54, 0.1)),
+        url("../assets/serene\ digital\ sunset\ landscape@2x.png") center/cover no-repeat,
+
+    radial-gradient(
+        ellipse at 100% 0%,
+        #322d38 10%,
+        transparent 20%
+    ),
+    linear-gradient(to bottom, #282531 0%, #0e0e0e 100%),
+
+        
+    linear-gradient(to bottom, #282531 0%, #0e0e0e 100%);
+
+}
+
+.brand{
+    display: flex;
+    margin: 4.5rem 4.5rem 5.75rem 4.5rem;
+    align-items: center;
+    gap: 1.125rem;
+}
+
+.brand h2{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #E4E1E7;
+    text-transform: uppercase;
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    letter-spacing: 0.05rem;
+}
+
+.brand-mark{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(from #D0BCFF r g b / 0.08);
+    border: solid 0.0625rem rgb(from #D0BCFF r g b / 0.16);
+    height: 3.25rem;
+    width: 3.25rem;
+}
+
+.brand-mark img{
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.hero-headline{
+    margin: 0 4.5rem 1.75rem 4.5rem;
+}
+
+.hero-headline-gray{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #E4E1E7;
+    text-transform: uppercase;
+    font-size: 4.875rem;
+    line-height: 4.625rem;
+    letter-spacing: -0.02rem;
+}
+
+.hero-headline-purple{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #D0BCFF;
+    text-transform: uppercase;
+    font-size: 4.875rem;
+    line-height: 4.625rem;
+    letter-spacing: -0.02rem;
+}
+
+.hero-desc{
+    margin: 0 16.75rem 4.0625rem 4.5rem;
+    font-family: 'Manrope', sans-serif;
+    color: #CBC3D7;
+    font-size: 1.125rem;
+    line-height: 1.8125rem;
+    letter-spacing: 0;
+}
+
+.hero-user-rate{
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(from #1B1B1F r g b / 0.92);
+    width: 31.25rem;
+    height: 15rem;
+    margin: 0 0 2.625rem 3.75rem;
+    border: 0.0625rem solid; 
+    border: solid 0.0625rem  rgb(from #494454 r g b / 0.20);
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
+
+.hero-user-rate-stars{
+    width: 27.5rem;
+    margin: 1.75rem 1.875rem 1.125rem 1.75rem;
+}
+
+.hero-user-rate-desc{
+    font-family: 'Manrope', sans-serif;
+    color: #CBC3D7;
+    width: 27.5rem;
+    height: 5.25rem;
+    margin: 0 1.875rem 1.5rem 1.875rem;
+}
+
+.hero-user-rate-profile{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 1.875rem 1.75rem;
+}
+
+.hero-user-rate-profile img{
+    width: 2.75rem;
+    height: 2.75rem;
+}
+
+.hero-user-rate-profile span{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #D0BCFF;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05rem;
+}
+
+/*Projeto do lado direito */
+
+.auth-shell{
+    flex: 1;
+}
+
+.auth-content{
+    margin: 2.875rem 5.3125rem;
+
+}
+
+.auth-header{
+
+}
+
+.auth-header h1{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #E4E1E7;
+    font-size: 3.25rem;
+    line-height: 3.125rem;
+    letter-spacing: -0.02rem;
+    margin-bottom: 0.75rem;
+}
+
+.auth-header p{
+    font-family: 'Manrope', sans-serif;
+    color: #CBC3D7;
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+    letter-spacing: 0rem;
+    margin-bottom: 2.5rem;
+}
+
+.email-senha-row h4{
+    font-family: 'Space Grotesk', sans-serif;
+    text-transform: uppercase;
+    color: #CBC3D7;
+    font-size: 0.6875rem;
+    line-height: 0.6875rem;
+    letter-spacing: 0.05rem;
+    margin-bottom: 0.625rem;
+}
+
+.email-field{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 3.875rem;
+    background-color: #1B1B1F;
+    border: 0;
+    border-bottom: 0.125rem solid rgb(from #494454 r g b / 0.35);
+    margin-bottom: 1.75rem;
+}
+
+.senha-field{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 3.875rem;
+    background-color: #1B1B1F;
+    border: 0;
+    border-bottom: 0.125rem solid rgb(from #494454 r g b / 0.35);
+    margin-bottom: 0.625rem;
+}
+
+.email-senha-field-span{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #CBC3D7;
+    font-weight: bold;
+    font-size: 1.3125rem;
+    line-height: 1.3125rem;
+    letter-spacing: 0;
+    display: flex;
+    align-items: center;
+    margin-right: 1.125rem;
+    margin-left: 0.875rem;
+}
+
+.email-senha-field-input{
+    font-family: 'Manrope', sans-serif;
+    width: 80%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #CBC3D7;
+    font-size: 1rem;
+    line-height: 1rem;
+    letter-spacing: 0;
+}
+
+.email-senha-field-input:-webkit-autofill,
+.email-senha-field-input:-webkit-autofill:hover,
+.email-senha-field-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+    -webkit-text-fill-color: #CBC3D7;
+    transition: background-color 5000s ease-in-out 0s;
+}   
+
+.email-senha-field-input::placeholder{
+    font-family: 'Manrope', sans-serif;
+    color: rgb(from #CBC3D7 r g b /0.34);
+    font-size: 1rem;
+    letter-spacing: 0;
+}
+
+.esqueci-senha-div{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.esqueci-senha-row{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #D0BCFF;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.6875rem;
+    line-height: 0.6875rem;
+    margin-bottom: 0.675rem;
+}
+
+.esqueci-senha-row:hover {
+    text-decoration: underline;
+}
+
+.remember-row{
+    display: flex;
+    margin-bottom: 2.125rem;
+}
+
+.remember-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.remember-row input {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 1.25rem;
+    width: 1.25rem;
+    background-color: #1B1B1F;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.remember-row input::after {
+    font-family: 'Space Grotesk', sans-serif;
+    content: '';
+    width: 0.1875rem;
+    height: 0.5625rem;
+    border: solid #1B1B1F;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+    display: none;
+    margin-bottom: 2px;
+}
+
+.remember-row input:checked {
+    background-color: #D0BCFF;
+    border-color: #1B1B1F;
+}
+
+.remember-row input:checked::after {
+    display: block;
+}
+    
+.remember-row span{
+    font-family: 'Manrope', sans-serif;
+    color: #CBC3D7;
+    font-size: 0.875rem;
+    line-height: 0.875rem;
+    letter-spacing: 0;
+}
+
+.login-button {
+    background: linear-gradient(90deg, #D0BCFF 0%, #A078FF 100%);
+    width: 100%;
+    height: 4.125rem;
+    border: none;
+    box-shadow: 0px 2px 10px -1px rgba(160, 120, 255, 0.8);
+    transition: box-shadow 0.2s ease;
+    cursor: pointer;
+    margin-bottom: 2.125rem;
+}
+
+.login-button:hover {
+    box-shadow: 0px 4px 12px -1px rgba(160, 120, 255, 0.8);
+    font-size: 1.2rem;
+}
+
+.login-button span{
+    font-family: 'Space Grotesk', sans-serif;
+    color: #3C0091;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 1rem;
+    line-height: 1rem;
+    letter-spacing: 0.16rem;
+}
+
+.divider{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.75rem;
+}
+
+.divider span{
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 18.125rem;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #CBC3D7;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    line-height: 0.6875rem;
+    letter-spacing: 0.0rem;
+}
+
+.divider hr{
+    width: 100%;
+    height: 0;
+    color: #050505;
+    border: 0;
+    border-top: 1px solid rgba(73, 68, 84, 0.8);
+}
+
+.google-button{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.25rem;
+}
+
+.google-button button{
+    border: none;
+    border-radius: 100%;
+    width: 3.375rem;
+    height: 3.375rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.google-button button:hover{
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.google-icon{
+    margin-top: 0.07rem;
+    width: 1.6875rem;
+    height: 1.6875rem;
+}
+
+.signup{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 4rem;
+}
+
+.signup span{
+    font-family: 'Manrope', sans-serif;
+    color: #CBC3D7;
+    font-size: 0.9375rem;
+    line-height: 0.9375rem;
+    letter-spacing: 0;
+}
+
+.signup-link{
+    font-family: 'Manrope', sans-serif;
+    color: #D0BCFF;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9375rem;
+    line-height: 0.9375rem;
+    letter-spacing: 0;
+}
+
+.signup-link:hover {
+    text-decoration: underline;
+}
+
+.auth-footer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%
+}
+
+.auth-footer span{
+    font-family: 'Space Grotesk', sans-serif;
+    color: rgba(203, 195, 215, 0.38);
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.6875rem;
+    line-height: 1.375rem;
+    letter-spacing: 0.16rem;
+}
